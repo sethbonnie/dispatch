@@ -1,5 +1,5 @@
 var assert = require( 'assert' )
-  , sub = require( '../src/sub.js' );
+  , Subscriber = require( '../src/sub.js' );
 
 describe( 'subscriber constructor', function() {
   var hub = { _unsubscribe: function() {} };
@@ -14,23 +14,23 @@ describe( 'subscriber constructor', function() {
       */
 
     assert.throws( function() {
-      sub( hub ); // undefined
+      Subscriber( hub ); // undefined
     })
 
     hub = {};
     assert.throws( function() {
-      sub( hub );  // empty object
+      Subscriber( hub );  // empty object
     })
 
     hub = {
       _unsubscribe: function() {}
     };
-    assert.ok( sub( hub ) );
+    assert.ok( Subscriber( hub ) );
 
   })
 
   it( "returns a new subscriber object if one wasn't passed in", function() {
-    var subscriber = sub( hub );
+    var subscriber = Subscriber( hub );
 
     assert.equal( typeof subscriber, 'object' );
 
@@ -42,14 +42,14 @@ describe( 'subscriber constructor', function() {
   it( "returns the same subscriber object that was passed in", function() {
     var subscriber = Object.create( null );
 
-    assert.strictEqual( sub( hub, subscriber ), subscriber );
+    assert.strictEqual( Subscriber( hub, subscriber ), subscriber );
 
   });
 
   it( "decorates subscriber with receive() if it doesn't have it", function() {
     var subscriber = Object.create( null );
 
-    sub( hub, subscriber );
+    Subscriber( hub, subscriber );
 
     assert.equal( typeof subscriber.receive, 'function' );
 
@@ -62,7 +62,7 @@ describe( 'subscriber constructor', function() {
       }
     });
 
-    sub( hub, subscriber );
+    Subscriber( hub, subscriber );
     assert.equal( subscriber.receive(), 'test' );
 
   })
@@ -74,7 +74,7 @@ describe( 'subscriber constructor', function() {
       }
     });
 
-    sub( hub, subscriber );
+    Subscriber( hub, subscriber );
     assert.notEqual( subscriber.ignore(), 'test' );
   })
 

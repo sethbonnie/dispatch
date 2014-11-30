@@ -7,7 +7,6 @@ module.exports = function( hub, subscriber ) {
   var sub = subscriber || Object.create( null );
 
   if ( !hub || typeof hub._unsubscribe !== 'function' ) {
-    console.log( hub );
     throw TypeError( 'A hub needs to passed in as the first argument' );
   }
 
