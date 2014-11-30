@@ -1,0 +1,4 @@
+dispatch
+========
+
+An event dispatcher.
