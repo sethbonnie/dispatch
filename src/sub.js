@@ -6,7 +6,7 @@
 module.exports = function( hub, subscriber ) {
   var sub = subscriber || Object.create( null );
 
-  if ( !hub || typeof hub._unsubscribe !== 'function' ) {
+  if ( !hub || typeof hub.unsubscribe !== 'function' ) {
     throw TypeError( 'A hub needs to passed in as the first argument' );
   }
 
@@ -15,10 +15,6 @@ module.exports = function( hub, subscriber ) {
     sub.receive = function( signal, payload ) {};
   }
 
-  sub.ignore = function( signal ) {
-    hub._unsubscribe( sub, signal );
-  }
-
   return sub;
 
-}
+};

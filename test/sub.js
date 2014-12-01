@@ -1,16 +1,16 @@
 var assert = require( 'assert' )
   , Subscriber = require( '../src/sub.js' );
 
-describe( 'subscriber constructor', function() {
-  var hub = { _unsubscribe: function() {} };
+describe( 'Subscriber constructor', function() {
+  var hub = { unsubscribe: function() {} };
 
   it( "requires a hub as it's first argument", function() {
     var hub = undefined;
 
     /** According to our definition of a hub, it's an object that
-      * provides the listen(), emit(), and a _unsubscribe method().
+      * provides the listen(), emit(), and a unsubscribe method().
       * But to a subscriber, the only thing that matters is that
-      * it provides an _unsubscribe method().
+      * it provides an unsubscribe method().
       */
 
     assert.throws( function() {
@@ -23,7 +23,7 @@ describe( 'subscriber constructor', function() {
     })
 
     hub = {
-      _unsubscribe: function() {}
+      unsubscribe: function() {}
     };
     assert.ok( Subscriber( hub ) );
 
@@ -35,7 +35,6 @@ describe( 'subscriber constructor', function() {
     assert.equal( typeof subscriber, 'object' );
 
     assert.equal( typeof subscriber.receive, 'function' );
-    assert.equal( typeof subscriber.ignore, 'function' );
 
   });
 
@@ -65,17 +64,6 @@ describe( 'subscriber constructor', function() {
     Subscriber( hub, subscriber );
     assert.equal( subscriber.receive(), 'test' );
 
-  })
-
-  it( "overrides subscriber's ignore() method even it exists", function() {
-    var subscriber = Object.create( {
-      ignore: function( signal ) {
-        return 'test';
-      }
-    });
-
-    Subscriber( hub, subscriber );
-    assert.notEqual( subscriber.ignore(), 'test' );
   })
 
 })
