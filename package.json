@@ -1,0 +1,29 @@
+{
+  "name": "dispatch",
+  "version": "0.0.1",
+  "description": "An event dispatcher.",
+  "main": "src/dispatch.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sethbonnie/dispatch.git"
+  },
+  "keywords": [
+    "event",
+    "emitter",
+    "dispatcher",
+    "pub",
+    "sub"
+  ],
+  "author": "Seth Bonnie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sethbonnie/dispatch/issues"
+  },
+  "homepage": "https://github.com/sethbonnie/dispatch"
+}
