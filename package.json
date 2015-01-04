@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/sethbonnie/dispatch/issues"
   },
-  "homepage": "https://github.com/sethbonnie/dispatch"
+  "homepage": "https://github.com/sethbonnie/dispatch",
+  "devDependencies": {
+    "sinon": "^1.12.2"
+  }
 }
