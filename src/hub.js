@@ -1,4 +1,4 @@
-var Sub = require( './sub' )
+var Subscriber = require( './sub' )
   , matches = require( './helpers' ).matches
   , unique = require( './helpers' ).unique;
 
@@ -63,35 +63,50 @@ module.exports = function Hub() {
   /** 
     * Registers the `sub` to receive all signals of type `message`.
     */
-  hub.subscribe = function( message, sub ) {
-    var subs;
+  hub.subscribe = function( messages, sub ) {
 
-    /** A module/signal is either multple word characters or 
-      * zero or more word characters followed by a star (*) which 
-      * acts as a wild card. 
-      *
-      * Only one wildcard is allowed in each part.
-      * 
-      * The module and signal are separated by a colon.
-      */
-    if ( ! /^(\w+|\w*\*)\:(\w+|\w*\*)$/.test( message ) ) {
-      throw new Error( '`message` arg must be in proper form "<module>:<signal>"' )
+    var subs, message;
+
+    sub = Subscriber( hub, sub );
+
+    if ( typeof messages === 'string' ) {
+      messages = [ messages ];
     }
 
-    subs = _subscribers[ message ];
-
-    sub = Sub( hub, sub );
-
-    /** First check if there is a mapping from the message to a subscribers list.
-      * If so, then add our sub only if it is not already part of the list.
-      */
-    if ( subs ) {
-      if ( subs.indexOf( sub ) < 0 ) {
-        subs.push( sub );
-      } 
+    if ( !( messages instanceof Array ) ) {
+      throw new Error( '`message` must be either a message string or an array of messages' );
     }
-    else {
-      _subscribers[ message ] = [ sub ];
+
+    // Loop through each message and register the sub to the _subscribers object.
+    for ( var i = 0, len = messages.length; i < len; i++ ) {
+
+      message = messages[i];
+
+      /** A module/signal is either multple word characters or 
+        * zero or more word characters followed by a star (*) which 
+        * acts as a wild card. 
+        *
+        * Only one wildcard is allowed in each part.
+        * 
+        * The module and signal are separated by a colon.
+        */
+      if ( ! /^(\w+|\w*\*)\:(\w+|\w*\*)$/.test( message ) ) {
+        throw new Error( '`message` arg must be in proper form "<module>:<signal>"' )
+      }
+
+      subs = _subscribers[ message ];
+
+      /** First check if there is a mapping from the message to a subscribers list.
+        * If so, then add our sub only if it is not already part of the list.
+        */
+      if ( subs ) {
+        if ( subs.indexOf( sub ) < 0 ) {
+          subs.push( sub );
+        } 
+      }
+      else {
+        _subscribers[ message ] = [ sub ];
+      }
     }
 
     return sub;

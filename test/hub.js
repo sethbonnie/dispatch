@@ -47,7 +47,7 @@ describe( 'Hub#subscribe()', function() {
   })
 
 
-  it( 'throws an error if `signal` is not a string', function() {
+  it( 'throws an error if `message` is not a string or an array of strings', function() {
 
     assert.throws( function() {
       hub.subscribe( undefined )
@@ -58,15 +58,18 @@ describe( 'Hub#subscribe()', function() {
     })
   })
 
-  it( 'throws an error if `signal` is not in `<module>:<signal>` format', function() {
+  it( 'throws an error if each `message` is not in `<module>:<signal>` format', function() {
 
     assert.throws( function() {
       hub.subscribe( 'just a plain string' )
     })
 
+    assert.throws( function() {
+      hub.subscribe( ['message1', 'message2'] );
+    })
   })
 
-  it( 'throws an error if more than one "*" is given as a module', function() {
+  it( 'throws an error if more than one wildcard is given at the end of the module part', function() {
 
     assert.throws( function() {
       hub.subscribe( 'mod**:signal' );
@@ -74,7 +77,7 @@ describe( 'Hub#subscribe()', function() {
 
   })
 
-  it( 'throws an error if more than one "*" is given as a signal', function() {
+  it( 'throws an error if more than one wildcard is given at the end of a signal', function() {
 
     assert.throws( function() {
       hub.subscribe( 'module:s**' );
@@ -82,11 +85,56 @@ describe( 'Hub#subscribe()', function() {
 
   })
 
-  it( 'subscribes to all signals of type <signal> when a <module> of type "*" is given' )
+  it( 'throws an error if a wildcard is not the last character of a module', function() {
 
-  it( 'subscribes to all signals of a <module> when a <signal> of type "*" is given' )
+    assert.throws( function() {
+      hub.subscribe( 'm*dule:signal' );
+    })
 
-  it( 'subscribes to multiple messages if an array is given as the first argument' )
+  })
+
+  it( 'throws an error if a wildcard is not the last character of a signal', function() {
+
+    assert.throws( function() {
+      hub.subscribe( 'module:s*gnal' );
+    })
+
+  })
+
+  it( 'subscribes to all signals of type <signal> when a <module> of type "*" is given', function() {
+    var click_handler = hub.subscribe( '*:click' );
+
+    sinon.spy( click_handler, 'receive' );
+
+    hub.emit( 'button:click' );
+    hub.emit( 'link:click' );
+
+    assert( click_handler.receive.calledTwice );
+  })
+
+  it( 'subscribes to all signals of a <module> when a <signal> of type "*" is given', function() {
+    var menu_events_handler = hub.subscribe( 'menu:*' );
+
+    sinon.spy( menu_events_handler, 'receive' );
+
+    hub.emit( 'menu:toggle' );
+    hub.emit( 'menu:open' );
+    hub.emit( 'menu:close' );
+
+    assert( menu_events_handler.receive.calledThrice );
+  })
+
+  it( 'subscribes to multiple messages when array is given as the `message` argument', function() {
+    var sub = hub.subscribe(['menu:open', 'menu:close'])
+
+    sinon.spy( sub, 'receive' );
+
+    hub.emit( 'menu:toggle' );
+    hub.emit( 'menu:open' );
+    hub.emit( 'menu:close' );
+
+    assert( sub.receive.calledTwice );
+  })
 
 })
 
@@ -149,7 +197,17 @@ describe( 'Hub#emit()', function() {
   })
 
 
-  it( "stops sending messages once the a subscriber unsubscribes" )
+  it( "stops sending messages once the a subscriber unsubscribes", function() {
+    var sub = hub.subscribe( 'menu:open' );
+
+    sinon.spy( sub, 'receive' );
+
+    hub.emit( 'menu:open' );
+    hub.unsubscribe( 'menu:open', sub );
+    hub.emit( 'menu:open' );
+
+    assert( sub.receive.calledOnce );
+  })
 
   
   it( 'throws an error if passed a "*" pattern as a signal', function() {
@@ -177,6 +235,16 @@ describe( 'Hub#unsubscribe( signal, sub )', function() {
     hub = Hub();
   })
 
+  it( 'throws an error if `message` is not a string or an array of strings' )
+
+  it( 'throws an error if each `message` is not in `<module>:<signal>` format' )
+
   it( 'unsubscribes the sub from receiving messages of type `signal`' )
+
+  it( 'unsubscribes from all signals if given a message value of `*:*`' )
+
+  it( 'unsubscribes from all signals of a <module> when a <signal> of type "*" is given' )
+
+  it( 'unsubscribes from all signals of type <signal> when the <module> part is a wildcard' )
 
 })
