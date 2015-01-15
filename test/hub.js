@@ -37,103 +37,142 @@ describe( 'Hub#subscribe()', function() {
 
   })
 
-  it( 'returns the same subscriber if one is given', function() {
-    var sub1 = hub.subscribe( 'module:signal1' )
-      , sub2 = hub.subscribe( 'module:signal2', sub1 )
-      , sub3 = hub.subscribe( 'module:signal3' )
+  describe( 'when a subscriber argument is given', function() {
 
-    assert.strictEqual( sub1, sub2 );
-    assert.notStrictEqual( sub1, sub3 );
-  })
+    it( 'returns the same subscriber', function() {
+      var sub1 = hub.subscribe( 'module:signal1' )
+        , sub2 = hub.subscribe( 'module:signal2', sub1 )
+        , sub3 = hub.subscribe( 'module:signal3' )
 
-
-  it( 'throws an error if `message` is not a string or an array of strings', function() {
-
-    assert.throws( function() {
-      hub.subscribe( undefined )
-    })
-
-    assert.throws( function() {
-      hub.subscribe( {} )
-    })
-  })
-
-  it( 'throws an error if each `message` is not in `<module>:<signal>` format', function() {
-
-    assert.throws( function() {
-      hub.subscribe( 'just a plain string' )
-    })
-
-    assert.throws( function() {
-      hub.subscribe( ['message1', 'message2'] );
-    })
-  })
-
-  it( 'throws an error if more than one wildcard is given at the end of the module part', function() {
-
-    assert.throws( function() {
-      hub.subscribe( 'mod**:signal' );
+      assert.strictEqual( sub1, sub2 );
+      assert.notStrictEqual( sub1, sub3 );
     })
 
   })
 
-  it( 'throws an error if more than one wildcard is given at the end of a signal', function() {
+  describe( 'when `message` is not a string or an array of strings', function() {
 
-    assert.throws( function() {
-      hub.subscribe( 'module:s**' );
+    it( 'throws an error', function() {
+
+      assert.throws( function() {
+        hub.subscribe( undefined )
+      })
+
+      assert.throws( function() {
+        hub.subscribe( {} )
+      })
     })
 
   })
 
-  it( 'throws an error if a wildcard is not the last character of a module', function() {
+  describe( 'when a `message` is not in `<module>:<signal>` format', function() {
 
-    assert.throws( function() {
-      hub.subscribe( 'm*dule:signal' );
+    it( 'throws an error', function() {
+
+      assert.throws( function() {
+        hub.subscribe( 'just a plain string' )
+      })
+
+      assert.throws( function() {
+        hub.subscribe( ['message1', 'message2'] );
+      })
     })
 
   })
 
-  it( 'throws an error if a wildcard is not the last character of a signal', function() {
+  describe( 'if more than one wildcard is given at the end of the module part', function() {
 
-    assert.throws( function() {
-      hub.subscribe( 'module:s*gnal' );
+    it( 'throws an error', function() {
+
+      assert.throws( function() {
+        hub.subscribe( 'mod**:signal' );
+      })
+
     })
 
   })
 
-  it( 'subscribes to all signals of type <signal> when a <module> of type "*" is given', function() {
-    var click_handler = hub.subscribe( '*:click' );
+  describe( 'when more than one wildcard is given at the end of a signal', function() {
 
-    sinon.spy( click_handler, 'receive' );
+    it( 'throws an error', function() {
 
-    hub.emit( 'button:click' );
-    hub.emit( 'link:click' );
+      assert.throws( function() {
+        hub.subscribe( 'module:s**' );
+      })
 
-    assert( click_handler.receive.calledTwice );
+    })
+
   })
 
-  it( 'subscribes to all signals of a <module> when a <signal> of type "*" is given', function() {
-    var menu_events_handler = hub.subscribe( 'menu:*' );
+  describe( 'if a wildcard is not the last character of a module', function() {
 
-    sinon.spy( menu_events_handler, 'receive' );
+    it( 'throws an error', function() {
 
-    hub.emit( 'menu:toggle' );
-    hub.emit( 'menu:open' );
-    hub.emit( 'menu:close' );
+      assert.throws( function() {
+        hub.subscribe( 'm*dule:signal' );
+      })
 
-    assert( menu_events_handler.receive.calledThrice );
+    })
+
   })
 
-  it( 'subscribes to multiple messages when array is given as the `message` argument', function() {
-    var sub = hub.subscribe(['menu:open', 'menu:close'])
+  describe( 'if a wildcard is not the last character of a signal', function() {
 
-    sinon.spy( sub, 'receive' );
+    it( 'throws an error ', function() {
 
-    hub.emit( 'menu:toggle' );
-    hub.emit( 'menu:open' );
-    hub.emit( 'menu:close' );
+      assert.throws( function() {
+        hub.subscribe( 'module:s*gnal' );
+      })
 
-    assert( sub.receive.calledTwice );
+    })
+
+  })
+
+  describe( 'when a <module> of type "*" is given', function() {
+
+    it( 'subscribes to all messages of type <signal> ', function() {
+      var click_handler = hub.subscribe( '*:click' );
+
+      sinon.spy( click_handler, 'receive' );
+
+      hub.emit( 'button:click' );
+      hub.emit( 'link:click' );
+
+      assert( click_handler.receive.calledTwice );
+    })
+
+  })
+
+  describe( 'when a <signal> of type "*" is given', function() {
+
+    it( 'subscribes to all messages of a <module> ', function() {
+      var menu_events_handler = hub.subscribe( 'menu:*' );
+
+      sinon.spy( menu_events_handler, 'receive' );
+
+      hub.emit( 'menu:toggle' );
+      hub.emit( 'menu:open' );
+      hub.emit( 'menu:close' );
+
+      assert( menu_events_handler.receive.calledThrice );
+    })
+
+  })
+
+  describe( 'when array is given as the `message` argument', function() {
+
+    it( 'subscribes to multiple messages ', function() {
+      var sub = hub.subscribe(['menu:open', 'menu:close'])
+
+      sinon.spy( sub, 'receive' );
+
+      hub.emit( 'menu:toggle' );
+      hub.emit( 'menu:open' );
+      hub.emit( 'menu:close' );
+
+      assert( sub.receive.calledTwice );
+    })
+
   })
 
 })
@@ -159,7 +198,7 @@ describe( 'Hub#emit()', function() {
     assert( sub2.receive.calledWith( 'menu:open', { foo: 'bar' }))
   });
 
-  it( 'sends the `message` and `payload` to subcribers of wildcard patterns', function() {
+  it( 'sends the `message` and `payload` to subcribers of wildcards', function() {
     var sub = hub.subscribe( 'menu:*' );
 
     // spy on the receive method
@@ -170,17 +209,21 @@ describe( 'Hub#emit()', function() {
     assert( sub.receive.calledWith( 'menu:open', { foo: 'bar' }))
   })
 
-  it( 'only sends a message to a sub once per emission regardless of multiple subscriptions', function() {
-    var sub = hub.subscribe( 'menu:*' );
-    hub.subscribe( 'menu:open', sub );
+  describe( 'when a subscriber subscribes to overlapping patterns', function() {
 
-    sinon.spy( sub, 'receive' );
+    it( 'only sends a message to a sub once per emission', function() {
+      var sub = hub.subscribe( 'menu:*' );
+      hub.subscribe( 'menu:open', sub );
 
-    // open matches twice but should generate just one emission
-    hub.emit( 'menu:open', { foo: 'bar' } );
-    hub.emit( 'menu:close', { foo: 'baz' } );
+      sinon.spy( sub, 'receive' );
 
-    assert( sub.receive.calledTwice )
+      // open matches twice but should generate just one emission
+      hub.emit( 'menu:open', { foo: 'bar' } );
+      hub.emit( 'menu:close', { foo: 'baz' } );
+
+      assert( sub.receive.calledTwice )
+    })
+
   })
 
   it( "doesn't send messages to subscribers that aren't subscribed", function() {
@@ -196,34 +239,40 @@ describe( 'Hub#emit()', function() {
     assert( !sub2.receive.called )
   })
 
+  describe( 'when a subscriber unsubscribes', function() {
 
-  it( "stops sending messages once the a subscriber unsubscribes", function() {
-    var sub = hub.subscribe( 'menu:open' );
+    it( "stops sending messages to that subscriber", function() {
+      var sub = hub.subscribe( 'menu:open' );
 
-    sinon.spy( sub, 'receive' );
+      sinon.spy( sub, 'receive' );
 
-    hub.emit( 'menu:open' );
-    hub.unsubscribe( 'menu:open', sub );
-    hub.emit( 'menu:open' );
+      hub.emit( 'menu:open' );
+      hub.unsubscribe( 'menu:open', sub );
+      hub.emit( 'menu:open' );
 
-    assert( sub.receive.calledOnce );
+      assert( sub.receive.calledOnce );
+    })
+
   })
 
+  describe( 'when given a "*" pattern as a message', function() {
   
-  it( 'throws an error if passed a "*" pattern as a signal', function() {
+    it( 'throws an error', function() {
 
-    assert.throws( function() {
-      hub.emit( '*:signal', 'payload' );
-    })
+      assert.throws( function() {
+        hub.emit( '*:signal', 'payload' );
+      })
 
-    assert.throws( function() {
-      hub.emit( 'module:*', 'payload' );
-    })
+      assert.throws( function() {
+        hub.emit( 'module:*', 'payload' );
+      })
 
-    assert.throws( function() {
-      hub.emit( '*:*', 'payload' );
-    })
-  });
+      assert.throws( function() {
+        hub.emit( '*:*', 'payload' );
+      })
+    });
+
+  })
 
 })
 
@@ -235,33 +284,62 @@ describe( 'Hub#unsubscribe( signal, sub )', function() {
     hub = Hub();
   })
 
-  it( 'throws an error if a sub is not actually passed in', function() {
-
-    assert.throws( function() {
-      hub.unsubscribe( 'module:signal' );
-    });
-    
-  })
-
-  it( 'throws an error if `message` is not a string or an array of strings', function() {
-
-    assert.throws( function() {
-      hub.unsubscribe( undefined )
-    })
-
-    assert.throws( function() {
-      hub.unsubscribe( {} )
-    })
-  })
-
-  it( 'throws an error if each `message` is not in `<module>:<signal>` format' )
-
   it( 'unsubscribes the sub from receiving messages of type `signal`' )
 
-  it( 'unsubscribes from all signals if given a message value of `*:*`' )
+  describe( 'when `sub` argument is not passed in', function() {
+    it( 'throws an error', function() {
 
-  it( 'unsubscribes from all signals of a <module> when a <signal> of type "*" is given' )
+      assert.throws( function() {
+        hub.unsubscribe( 'module:signal' );
+      });
+      
+    })
 
-  it( 'unsubscribes from all signals of type <signal> when the <module> part is a wildcard' )
+  })
+
+  describe( 'when `message` is not a string or an array of messages', function() {
+
+    it( 'throws an error', function() {
+
+      assert.throws( function() {
+        hub.unsubscribe( undefined )
+      })
+
+      assert.throws( function() {
+        hub.unsubscribe( {} )
+      })
+    })
+
+  })
+
+  describe( 'when `message` is not in `<module>:<signal>` format', function() {
+    it( 'throws an error', function() {
+      assert.throws( function() {
+        hub.subscribe( 'just a plain string' )
+      })
+
+      assert.throws( function() {
+        hub.subscribe( ['message1', 'message2'] );
+      })
+    })
+  })
+
+  describe( 'when given a message value of `*:*`', function() {
+
+    it( 'unsubscribes from all messages' )
+
+  })
+
+  describe( 'when a <signal> of type "*" is given', function() {
+
+    it( 'unsubscribes from all messages of a given <module>' )
+
+  })
+
+  describe( 'when the <module> part is a wildcard', function() {
+
+    it( 'unsubscribes from all messages of type <signal> ' )
+
+  })
 
 })
