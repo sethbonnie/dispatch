@@ -235,7 +235,24 @@ describe( 'Hub#unsubscribe( signal, sub )', function() {
     hub = Hub();
   })
 
-  it( 'throws an error if `message` is not a string or an array of strings' )
+  it( 'throws an error if a sub is not actually passed in', function() {
+
+    assert.throws( function() {
+      hub.unsubscribe( 'module:signal' );
+    });
+    
+  })
+
+  it( 'throws an error if `message` is not a string or an array of strings', function() {
+
+    assert.throws( function() {
+      hub.unsubscribe( undefined )
+    })
+
+    assert.throws( function() {
+      hub.unsubscribe( {} )
+    })
+  })
 
   it( 'throws an error if each `message` is not in `<module>:<signal>` format' )
 
