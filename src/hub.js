@@ -1,6 +1,6 @@
-var Subscriber = require( './sub' )
-  , matches = require( './helpers' ).matches
-  , unique = require( './helpers' ).unique;
+var Subscriber = require( './sub' );
+var matches = require( './helpers' ).matches;
+var unique = require( './helpers' ).unique;
 
 /** 
   * A hub is an event manager that routes events and their
@@ -9,27 +9,31 @@ var Subscriber = require( './sub' )
   */
 module.exports = function Hub() {
 
-  var hub = Object.create( null )
+  var hub = Object.create( null );
 
-    // Mapping of messages -> subscribers
-    , _subscribers = Object.create( null );
+  // Mapping of messages -> subscribers
+  var _subscribers = Object.create( null );
 
 
   /** 
     * Stops routing messages of type <`module`:`signal`> to the subscriber.
     */
   hub.unsubscribe = function( messages, sub ) {
+    var matches_pattern = function( key ) {
+          return pattern.test( key );
+        };
     var matching_keys = [];
     var patterns = Object.keys( _subscribers );
     var subs;
-    var message;
     var pattern;
+    var i;
+    var len;
 
     if ( !sub ) {
-      throw new Error( '`sub` cannot be `undefined`' )
+      throw new Error( '`sub` cannot be `undefined`' );
     }
     else if ( typeof sub.receive !== 'function' ) {
-      throw new Error( '`sub` must implement a `receive()` method' )
+      throw new Error( '`sub` must implement a `receive()` method' );
     }
 
     if ( typeof messages === 'string' ) {
@@ -45,7 +49,7 @@ module.exports = function Hub() {
       * Loop through each message and unregister the sub from the _subscribers 
       * object.
       */ 
-    for ( var i = 0, len = messages.length; i < len; i++ ) {
+    for ( i = 0, len = messages.length; i < len; i++ ) {
 
       /** A module/signal is either multple word characters or 
         * zero or more word characters followed by a star (*) which 
@@ -63,16 +67,14 @@ module.exports = function Hub() {
       // Replace all wildcards with a `[\w*]*` regex.
       pattern = new RegExp( messages[i].replace( /\*/g, "[\\w*]*" ) );
 
-      matching_keys = matching_keys.concat( patterns.filter( function( k ) {
-        return pattern.test( k );
-      }));
+      matching_keys = matching_keys.concat( patterns.filter( matches_pattern ) );
     }
 
     // Filter out duplicate keys
     matching_keys = unique( matching_keys );
 
     // Iterate through each matching key and remove the sub if it exists
-    for ( var i = 0, len = matching_keys.length; i < len; i++ ) {
+    for ( i = 0, len = matching_keys.length; i < len; i++ ) {
       subs = _subscribers[ matching_keys[i] ];
 
       if ( subs && subs.indexOf( sub ) > -1 ) {
@@ -91,11 +93,15 @@ module.exports = function Hub() {
     */
   hub.emit = function( message, payload ) {
 
-    var matching_subs = []
-      , all_patterns = Object.keys( _subscribers )
-      , matching_patterns = all_patterns.filter( function( pattern ) {
+    var matching_subs = [];
+    var all_patterns = Object.keys( _subscribers );
+
+    var matching_patterns = all_patterns.filter( function( pattern ) {
           return matches( message, pattern );
-        })
+        });
+
+    var key;
+    var i;
 
     /** Don't allow wildcards in emissions.
       * The main purpose of this is to force all emitted signals to be
@@ -106,22 +112,23 @@ module.exports = function Hub() {
       * But in order to send mail, you have to be explicit about who it is for.
       */
     if ( message.indexOf( '*' ) != -1 ) {
-      throw Error( 'Wildcard patterns are not allowed in emissions' )
+      throw Error( 'Wildcard patterns are not allowed in emissions' );
     }
 
     // Gather all the matching subscribers into one array
-    for ( var i = 0, key; i < matching_patterns.length; i++ ) {
+    for ( i = 0; i < matching_patterns.length; i++ ) {
       key = matching_patterns[i];
-      matching_subs = matching_subs.concat( _subscribers[key] )
+      matching_subs = matching_subs.concat( _subscribers[key] );
     }
 
     // Filter out duplicates
     matching_subs = unique( matching_subs );
 
     // Send the message to each subscriber
-    for ( var i = 0; i < matching_subs.length; i++ ) {
+    for ( i = 0; i < matching_subs.length; i++ ) {
       matching_subs[i].receive( message, payload );
     }
+
   };
 
   /** 
@@ -129,7 +136,10 @@ module.exports = function Hub() {
     */
   hub.subscribe = function( messages, sub ) {
 
-    var subs, message;
+    var message;
+    var subs;
+    var len;
+    var i;
 
     sub = Subscriber( hub, sub );
 
@@ -143,7 +153,7 @@ module.exports = function Hub() {
     }
 
     // Loop through each message and register the sub to the _subscribers object.
-    for ( var i = 0, len = messages.length; i < len; i++ ) {
+    for ( i = 0, len = messages.length; i < len; i++ ) {
 
       message = messages[i];
 
