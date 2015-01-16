@@ -23,7 +23,7 @@ describe( 'Hub instance', function() {
 
 })
 
-describe( 'Hub#subscribe()', function() {
+describe( 'Hub#subscribe( message [, subscriber] )', function() {
   var hub;
 
   beforeEach( function() {
@@ -177,7 +177,7 @@ describe( 'Hub#subscribe()', function() {
 
 })
 
-describe( 'Hub#emit()', function() {
+describe( 'Hub#emit( message, payload )', function() {
   var hub;
 
   beforeEach( function() {
@@ -277,22 +277,52 @@ describe( 'Hub#emit()', function() {
 })
 
 
-describe( 'Hub#unsubscribe( signal, sub )', function() {
+describe( 'Hub#unsubscribe( messages, sub )', function() {
   var hub;
 
   beforeEach( function() {
     hub = Hub();
   })
 
-  it( 'unsubscribes the sub from receiving messages of type `signal`' )
+  it( 'stops sending `sub` `messages` of the given type', function() {
+    var sub = hub.subscribe( ['menu:open', 'menu:close', 'modal:open'] );
+    sinon.spy( sub, 'receive' );
+
+    hub.unsubscribe( 'menu:open', sub );
+
+    hub.emit( 'menu:open' );  // should NOT go through
+    hub.emit( 'modal:open' ); // should go through
+    hub.emit( 'menu:close' ); // should go through
+
+    assert.equal( sub.receive.callCount, 2 );
+  })
 
   describe( 'when `sub` argument is not passed in', function() {
+    
     it( 'throws an error', function() {
 
       assert.throws( function() {
         hub.unsubscribe( 'module:signal' );
       });
       
+    })
+
+  })
+
+  describe( 'when one sub unsubscribes from a message', function() {
+    
+    it( 'should not unsubscribe any other subscribers', function() {
+      var sub1 = hub.subscribe( 'menu:open' );
+      var sub2 = hub.subscribe( 'menu:open' );
+
+      sinon.spy( sub1, 'receive' );
+      sinon.spy( sub2, 'receive' );
+
+      hub.unsubscribe( 'menu:open', sub1 );
+      hub.emit( 'menu:open' );
+
+      assert.equal( sub1.receive.callCount, 0 );
+      assert.equal( sub2.receive.callCount, 1 );
     })
 
   })
@@ -315,30 +345,58 @@ describe( 'Hub#unsubscribe( signal, sub )', function() {
   describe( 'when `message` is not in `<module>:<signal>` format', function() {
     it( 'throws an error', function() {
       assert.throws( function() {
-        hub.subscribe( 'just a plain string' )
+        hub.unsubscribe( 'just a plain string' )
       })
 
       assert.throws( function() {
-        hub.subscribe( ['message1', 'message2'] );
+        hub.unsubscribe( ['message1', 'message2'] );
       })
     })
   })
 
   describe( 'when given a message value of `*:*`', function() {
 
-    it( 'unsubscribes from all messages' )
+    it( 'unsubscribes from all messages', function() {
+      var sub = hub.subscribe( ['menu:open', 'modal:open', 'button:click'] );
+      sinon.spy( sub, 'receive' );
+
+      hub.unsubscribe( '*:*', sub );
+      hub.emit( 'menu:open' );
+      hub.emit( 'modal:open', { type: 'mastery-trees' } );
+      hub.emit( 'button:click' );
+
+      assert.equal( sub.receive.callCount, 0 );
+    })
 
   })
 
   describe( 'when a <signal> of type "*" is given', function() {
 
-    it( 'unsubscribes from all messages of a given <module>' )
+    it( 'unsubscribes from all messages of a given <module>', function() {
+      var sub = hub.subscribe( ['menu:open', 'menu:close'] );
+      sinon.spy( sub, 'receive' );
+
+      hub.unsubscribe( 'menu:*', sub );
+      hub.emit( 'menu:open' );
+      hub.emit( 'menu:close' );
+
+      assert.equal( sub.receive.callCount, 0 );
+    })
 
   })
 
   describe( 'when the <module> part is a wildcard', function() {
 
-    it( 'unsubscribes from all messages of type <signal> ' )
+    it( 'unsubscribes from all messages of type <signal>', function() {
+      var sub = hub.subscribe( ['menu:open', 'modal:open'] );
+      sinon.spy( sub, 'receive' );
+
+      hub.unsubscribe( '*:open', sub );
+      hub.emit( 'modal:open' );
+      hub.emit( 'menu:open' );
+
+      assert.equal( sub.receive.callCount, 0 );
+    })
 
   })
 
