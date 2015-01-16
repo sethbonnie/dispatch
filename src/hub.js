@@ -131,7 +131,7 @@ module.exports = function Hub() {
 
     var subs, message;
 
-    sub = Subscriber( hub, sub );
+    sub = Subscriber( sub );
 
     if ( typeof messages === 'string' ) {
       messages = [ messages ];

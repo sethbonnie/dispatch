@@ -1,69 +1,47 @@
-var assert = require( 'assert' )
-  , Subscriber = require( '../src/sub.js' );
+var assert = require( 'assert' );
+var sinon  = require( 'sinon' );
+var Subscriber = require( '../src/sub.js' );
 
-describe( 'Subscriber constructor', function() {
-  var hub = { unsubscribe: function() {} };
+describe( 'Subscriber( subscriber )', function() {
+  
+  describe( 'when `subscriber` object is not given', function() {
 
-  it( "requires a hub as it's first argument", function() {
-    var hub = undefined;
+    it( 'returns a new `subscriber` object', function() {
+      var subscriber = Subscriber();
 
-    /** According to our definition of a hub, it's an object that
-      * provides the listen(), emit(), and a unsubscribe method().
-      * But to a subscriber, the only thing that matters is that
-      * it provides an unsubscribe method().
-      */
+      assert.equal( typeof subscriber, 'object' );
 
-    assert.throws( function() {
-      Subscriber( hub ); // undefined
-    })
-
-    hub = {};
-    assert.throws( function() {
-      Subscriber( hub );  // empty object
-    })
-
-    hub = {
-      unsubscribe: function() {}
-    };
-    assert.ok( Subscriber( hub ) );
-
-  })
-
-  it( "returns a new subscriber object if one wasn't passed in", function() {
-    var subscriber = Subscriber( hub );
-
-    assert.equal( typeof subscriber, 'object' );
-
-    assert.equal( typeof subscriber.receive, 'function' );
-
+      assert.equal( typeof subscriber.receive, 'function' );
+    });
   });
 
-  it( "returns the same subscriber object that was passed in", function() {
-    var subscriber = Object.create( null );
+  describe( 'when `subscriber` is passed as an arg', function() {
 
-    assert.strictEqual( Subscriber( hub, subscriber ), subscriber );
+    it( 'returns the same `subscriber`', function() {
+      var subscriber = Object.create( null );
 
-  });
-
-  it( "decorates subscriber with receive() if it doesn't have it", function() {
-    var subscriber = Object.create( null );
-
-    Subscriber( hub, subscriber );
-
-    assert.equal( typeof subscriber.receive, 'function' );
-
-  });
-
-  it( "defers to the subscriber's receive() method if it exists", function() {
-    var subscriber = Object.create( {
-      receive: function( signal, payload ) {
-        return 'test';
-      }
+      assert.strictEqual( Subscriber( subscriber ), subscriber );
     });
 
-    Subscriber( hub, subscriber );
-    assert.equal( subscriber.receive(), 'test' );
+    it( 'decorates `subscriber` with receive() if it does not have it', function() {
+      var subscriber = Object.create( null );
 
-  })
+      assert.equal( typeof subscriber.receive, 'undefined' );
 
-})
+      Subscriber(  subscriber );
+
+      assert.equal( typeof subscriber.receive, 'function' );
+    });
+
+    it( "defers to `subscriber's receive()` method if it exists", function() {
+      var subscriber = Object.create( {
+        receive: function( signal, payload ) {
+          return 'test';
+        }
+      });
+
+      Subscriber( subscriber );
+      assert.equal( subscriber.receive(), 'test' );
+    });
+  });
+});
