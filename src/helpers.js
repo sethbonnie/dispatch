@@ -1,8 +1,7 @@
-
 module.exports = {
   matches: matches_pattern,
   unique: unique
-}
+};
 
 /** matches_pattern( msg, pattern ) => <Boolean>
   * Checks if the `message` matches the `signal_pattern`.
@@ -10,7 +9,7 @@ module.exports = {
   * Wildcards are translated to `\w*` regexp patterns.
   */
 function matches_pattern( message, signal_pattern ) {
-  var pattern = signal_pattern.replace( /\*/g, '\\w*' )
+  var pattern = signal_pattern.replace( /\*/g, '\\w*' );
 
   return new RegExp( '^' + pattern + '$' ).test( message );
 }
@@ -21,10 +20,11 @@ function matches_pattern( message, signal_pattern ) {
 function unique( arr ) {
   var result = [];
   var len = arr.length;
+  var i;
 
-  for ( var i = 0; i < len; i++ ) {
+  for ( i = 0; i < len; i++ ) {
     if ( result.indexOf( arr[i] ) < 0 ) {
-      result.push( arr[i] )
+      result.push( arr[i] );
     }
   }
 
