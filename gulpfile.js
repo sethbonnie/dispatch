@@ -30,7 +30,7 @@ gulp.task( 'build', ['test'],  function() {
     .bundle()
     .pipe( source( 'dispatch.js' ) )
     .pipe( streamify(uglify()) )
-    .pipe( gulp.dest( './dist' ) );
+    .pipe( gulp.dest( './build' ) );
 
 });
 
