@@ -1,5 +1,5 @@
 var assert = require( 'assert' );
-var Dispatch = require( '../src/index' );
+var Dispatch = require( '../index' );
 
 describe( 'Dispatch', function() {
 

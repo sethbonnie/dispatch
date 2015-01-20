@@ -1,4 +1,4 @@
-var Hub = require( './hub' );
+var Hub = require( './src/hub' );
 
 // The one they call 'The Dispatcher' aka 'Dispatch'
 module.exports = {
