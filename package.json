@@ -1,0 +1,40 @@
+{
+  "name": "dispatch",
+  "version": "0.1.0",
+  "description": "An event dispatcher.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sethbonnie/dispatch.git"
+  },
+  "keywords": [
+    "event",
+    "emitter",
+    "dispatcher",
+    "pub",
+    "sub"
+  ],
+  "author": "Seth Bonnie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sethbonnie/dispatch/issues"
+  },
+  "homepage": "https://github.com/sethbonnie/dispatch",
+  "devDependencies": {
+    "browserify": "^8.1.1",
+    "gulp": "^3.8.10",
+    "gulp-jshint": "^1.9.0",
+    "gulp-mocha": "^2.0.0",
+    "gulp-streamify": "0.0.5",
+    "gulp-uglify": "^1.0.2",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2",
+    "vinyl-source-stream": "^1.0.0"
+  }
+}
