@@ -1,10 +1,7 @@
-dispatch
+ground-control
 ========
 
-An event dispatcher.
-
-
-As opposed to many other event emitters, `dispatch` registers objects rather callbacks. This is more to emulate an FSM where each module decides what to do based on its input. A callback is more flexible, but in my experience the FSM model puts an architectural constraint on your application that naturally enforces order and explicit design.
+An event emitter that takes inspiration from the erlang process model. As opposed to many other event emitters, `dispatch` registers objects rather callbacks. Each subscriber is expected to implement a `__receive(message, payload)` method, which pattern matches on message and does whatever through that.
 
 
 ## Hub API

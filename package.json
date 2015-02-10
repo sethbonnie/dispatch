@@ -1,8 +1,8 @@
 {
-  "name": "dispatch",
+  "name": "ground-control",
   "version": "0.1.1",
   "description": "An event dispatcher.",
-  "main": "index.js",
+  "main": "ground-control.js",
   "directories": {
     "test": "test"
   },
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sethbonnie/dispatch.git"
+    "url": "https://github.com/sethbonnie/ground-control.git"
   },
   "keywords": [
     "event",
@@ -23,9 +23,9 @@
   "author": "Seth Bonnie",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sethbonnie/dispatch/issues"
+    "url": "https://github.com/sethbonnie/ground-control/issues"
   },
-  "homepage": "https://github.com/sethbonnie/dispatch",
+  "homepage": "https://github.com/sethbonnie/ground-control",
   "devDependencies": {
     "browserify": "^8.1.1",
     "gulp": "^3.8.10",

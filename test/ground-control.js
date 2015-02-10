@@ -1,10 +1,10 @@
 var assert = require( 'assert' );
-var Dispatch = require( '../index' );
+var gc = require( '../ground-control.js' );
 
-describe( 'Dispatch', function() {
+describe( 'ground-control', function() {
 
   it( 'provides a hub() method', function() {
-    assert.equal( typeof Dispatch.hub, 'function' );
+    assert.equal( typeof gc.hub, 'function' );
   });
 
   describe( '.hub()', function() {
@@ -12,7 +12,7 @@ describe( 'Dispatch', function() {
     it( 'returns a hub instance', function() {
       // A hub is an object that adheres to the hub api:
       //  .emit(), .subscribe(), .unsubscribe()
-      var hub = Dispatch.hub();
+      var hub = gc.hub();
 
       assert.equal( typeof hub.emit, 'function' );
       assert.equal( typeof hub.subscribe, 'function' );
@@ -22,8 +22,8 @@ describe( 'Dispatch', function() {
     describe( 'when called multiple times', function() {
 
       it( 'returns different hub instances', function() {
-        var hub1 = Dispatch.hub();
-        var hub2 = Dispatch.hub();
+        var hub1 = gc.hub();
+        var hub2 = gc.hub();
 
         assert( hub1 !== hub2 );
       });
