@@ -1,5 +1,5 @@
 var assert  = require( 'assert' );
-var unique  = require( '../src/helpers' ).unique;
+var unique  = require( '../src/utils/unique' );
 var matches = require( '../src/helpers' ).matches;
 
 describe( 'unique( array )', function() {

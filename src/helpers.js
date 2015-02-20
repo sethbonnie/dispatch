@@ -1,6 +1,5 @@
 module.exports = {
-  matches: matches_pattern,
-  unique: unique
+  matches: matches_pattern
 };
 
 /**
@@ -17,21 +16,3 @@ function matches_pattern( message, pattern ) {
   return regex.test( message );
 }
 
-/**
-  * Returns all the unique elements in an array.
-  * @param {Array} arr - An array with possible duplicate elements.
-  * @returns {Array} A new array with duplicate elements removed.
-  */
-function unique( arr ) {
-  var result = [];
-  var len = arr.length;
-  var i;
-
-  for ( i = 0; i < len; i++ ) {
-    if ( result.indexOf( arr[i] ) < 0 ) {
-      result.push( arr[i] );
-    }
-  }
-
-  return result;
-}

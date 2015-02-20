@@ -1,6 +1,6 @@
 var Subscriber = require( './sub' );
 var matches = require( './helpers' ).matches;
-var unique = require( './helpers' ).unique;
+var unique = require( './utils/unique' );
 
 /** 
   * A hub is an event manager that routes messages and their
