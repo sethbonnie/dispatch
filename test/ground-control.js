@@ -14,9 +14,9 @@ describe( 'ground-control', function() {
       //  .emit(), .subscribe(), .unsubscribe()
       var hub = gc.hub();
 
-      assert.equal( typeof hub.emit, 'function' );
-      assert.equal( typeof hub.subscribe, 'function' );
-      assert.equal( typeof hub.unsubscribe, 'function' );
+      assert.equal( typeof hub.dispatch, 'function' );
+      assert.equal( typeof hub.sub, 'function' );
+      assert.equal( typeof hub.unsub, 'function' );
     });
 
     describe( 'when called multiple times', function() {

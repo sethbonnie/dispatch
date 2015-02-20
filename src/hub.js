@@ -22,12 +22,12 @@ module.exports = function Hub() {
     * 
     * @param {String|Array} messages - A message or array of messages that the 
     *   `subscriber` no longer wishes to listen for.
-    * @param {Function} sub - The function that was passed to the `subscribe()` 
+    * @param {Function} subscriber - The function that was passed to the `subscribe()` 
     *   method.
     *
     * @returns {undefined}
     */
-  hub.unsubscribe = function( messages, sub ) {
+  hub.unsub = function( messages, subscriber ) {
     var matches_pattern = function( key ) {
           return pattern.test( key );
         };
@@ -38,11 +38,11 @@ module.exports = function Hub() {
     var i;
     var len;
 
-    if ( !sub ) {
-      throw new Error( '`sub` cannot be `undefined`' );
+    if ( !subscriber ) {
+      throw new Error( '`subscriber` cannot be `undefined`' );
     }
-    else if ( typeof sub.receive !== 'function' ) {
-      throw new Error( '`sub` must implement a `receive()` method' );
+    else if ( typeof subscriber.receive !== 'function' ) {
+      throw new Error( '`subscriber` must implement a `receive()` method' );
     }
 
     if ( typeof messages === 'string' ) {
@@ -55,7 +55,7 @@ module.exports = function Hub() {
     }
 
     /**
-      * Loop through each message and unregister the sub from the _subscribers 
+      * Loop through each message and unregister the subscriber from the _subscribers 
       * object.
       */ 
     for ( i = 0, len = messages.length; i < len; i++ ) {
@@ -86,8 +86,8 @@ module.exports = function Hub() {
     for ( i = 0, len = matching_keys.length; i < len; i++ ) {
       subs = _subscribers[ matching_keys[i] ];
 
-      if ( subs && subs.indexOf( sub ) > -1 ) {
-        subs.splice( subs.indexOf( sub ), 1 );
+      if ( subs && subs.indexOf( subscriber ) > -1 ) {
+        subs.splice( subs.indexOf( subscriber ), 1 );
       }
 
       // If no more subscribers are registered under the key, delete it
@@ -109,7 +109,7 @@ module.exports = function Hub() {
     *
     * @returns {undefined}
     */
-  hub.emit = function( message, payload ) {
+  hub.dispatch = function( message, payload ) {
 
     var matching_subs = [];
     var all_patterns = Object.keys( _subscribers );
@@ -146,18 +146,18 @@ module.exports = function Hub() {
     * Registers the `sub` to receive all signals of type `message`.
     * @param {String|Array} messages - A message or array of messages that the 
     *   `subscriber` wishes to receive.
-    * @param {Function} sub - The function that will be the recipient of each
+    * @param {Function} subscriber - The function that will be the recipient of each
     *   subscribed message and its associated payload.
     * @returns {undefined}
     */
-  hub.subscribe = function( messages, sub ) {
+  hub.sub = function( messages, subscriber ) {
 
     var message;
     var subs;
     var len;
     var i;
 
-    sub = Subscriber( sub );
+    subscriber = Subscriber( subscriber );
 
     if ( typeof messages === 'string' ) {
       messages = [ messages ];
@@ -189,20 +189,20 @@ module.exports = function Hub() {
       subs = _subscribers[ message ];
 
       /** Check if there is a mapping from the message to a subscribers 
-        * list; if one exists, add our sub if it's not already part of the list.
+        * list; if one exists, add our subscriber if it's not already part of the list.
         * If there is no mapping then create a new list.
         */
       if ( subs ) {
-        if ( subs.indexOf( sub ) < 0 ) {
-          subs.push( sub );
+        if ( subs.indexOf( subscriber ) < 0 ) {
+          subs.push( subscriber );
         } 
       }
       else {
-        _subscribers[ message ] = [ sub ];
+        _subscribers[ message ] = [ subscriber ];
       }
     }
 
-    return sub;
+    return subscriber;
   };
 
   return hub;

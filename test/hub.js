@@ -10,20 +10,20 @@ describe( 'Hub instance', function() {
   });
 
   it( 'provides a subscribe() method', function() {
-    assert.equal( typeof hub.subscribe, 'function' );
+    assert.equal( typeof hub.sub, 'function' );
   });
 
-  it( 'provides an emit() method', function() {
-    assert.equal( typeof hub.emit, 'function' );
+  it( 'provides an dispatch() method', function() {
+    assert.equal( typeof hub.dispatch, 'function' );
   });
 
-  it( 'provides an unsubscribe() method', function() {
-    assert.equal( typeof hub.unsubscribe, 'function' );
+  it( 'provides an unsub() method', function() {
+    assert.equal( typeof hub.unsub, 'function' );
   });
 
 });
 
-describe( 'Hub#subscribe( message [, subscriber] )', function() {
+describe( 'Hub#sub( message [, subscriber] )', function() {
   var hub;
 
   beforeEach( function() {
@@ -31,7 +31,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
   });
 
   it( 'returns a subscriber', function() {
-    var sub = hub.subscribe( 'module:signal' );
+    var sub = hub.sub( 'module:signal' );
 
     assert.equal( typeof sub.receive, 'function' );
   });
@@ -39,9 +39,9 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
   describe( 'when a subscriber argument is given', function() {
 
     it( 'returns the same subscriber', function() {
-      var sub1 = hub.subscribe( 'module:signal1' );
-      var sub2 = hub.subscribe( 'module:signal2', sub1 );
-      var sub3 = hub.subscribe( 'module:signal3' );
+      var sub1 = hub.sub( 'module:signal1' );
+      var sub2 = hub.sub( 'module:signal2', sub1 );
+      var sub3 = hub.sub( 'module:signal3' );
 
       assert.strictEqual( sub1, sub2 );
       assert.notStrictEqual( sub1, sub3 );
@@ -53,11 +53,11 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.subscribe( undefined );
+        hub.sub( undefined );
       });
 
       assert.throws( function() {
-        hub.subscribe( {} );
+        hub.sub( {} );
       });
     });
   });
@@ -67,11 +67,11 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.subscribe( 'just a plain string' );
+        hub.sub( 'just a plain string' );
       });
 
       assert.throws( function() {
-        hub.subscribe( ['message1', 'message2'] );
+        hub.sub( ['message1', 'message2'] );
       });
     });
   });
@@ -81,7 +81,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.subscribe( 'mod**:signal' );
+        hub.sub( 'mod**:signal' );
       });
     });
   });
@@ -91,7 +91,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.subscribe( 'module:s**' );
+        hub.sub( 'module:s**' );
       });
     });
   });
@@ -101,7 +101,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.subscribe( 'm*dule:signal' );
+        hub.sub( 'm*dule:signal' );
       });
     });
   });
@@ -111,7 +111,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
     it( 'throws an error ', function() {
 
       assert.throws( function() {
-        hub.subscribe( 'module:s*gnal' );
+        hub.sub( 'module:s*gnal' );
       });
 
     });
@@ -120,12 +120,12 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
   describe( 'when a <module> of type "*" is given', function() {
 
     it( 'subscribes to all messages of type <signal> ', function() {
-      var click_handler = hub.subscribe( '*:click' );
+      var click_handler = hub.sub( '*:click' );
 
       sinon.spy( click_handler, 'receive' );
 
-      hub.emit( 'button:click' );
-      hub.emit( 'link:click' );
+      hub.dispatch( 'button:click' );
+      hub.dispatch( 'link:click' );
 
       assert( click_handler.receive.calledTwice );
     });
@@ -134,13 +134,13 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
   describe( 'when a <signal> of type "*" is given', function() {
 
     it( 'subscribes to all messages of a <module> ', function() {
-      var menu_events_handler = hub.subscribe( 'menu:*' );
+      var menu_events_handler = hub.sub( 'menu:*' );
 
       sinon.spy( menu_events_handler, 'receive' );
 
-      hub.emit( 'menu:toggle' );
-      hub.emit( 'menu:open' );
-      hub.emit( 'menu:close' );
+      hub.dispatch( 'menu:toggle' );
+      hub.dispatch( 'menu:open' );
+      hub.dispatch( 'menu:close' );
 
       assert( menu_events_handler.receive.calledThrice );
     });
@@ -149,13 +149,13 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
   describe( 'when array is given as the `message` argument', function() {
 
     it( 'subscribes to multiple messages ', function() {
-      var sub = hub.subscribe(['menu:open', 'menu:close']);
+      var sub = hub.sub(['menu:open', 'menu:close']);
 
       sinon.spy( sub, 'receive' );
 
-      hub.emit( 'menu:toggle' );
-      hub.emit( 'menu:open' );
-      hub.emit( 'menu:close' );
+      hub.dispatch( 'menu:toggle' );
+      hub.dispatch( 'menu:open' );
+      hub.dispatch( 'menu:close' );
 
       assert( sub.receive.calledTwice );
     });
@@ -163,7 +163,7 @@ describe( 'Hub#subscribe( message [, subscriber] )', function() {
 
 });
 
-describe( 'Hub#emit( message, payload )', function() {
+describe( 'Hub#dispatch( message, payload )', function() {
   var hub;
 
   beforeEach( function() {
@@ -171,24 +171,24 @@ describe( 'Hub#emit( message, payload )', function() {
   });
 
   it( 'sends the `message` and `payload` to each subscribed module', function() {
-    var sub1 = hub.subscribe( 'menu:open' );
-    var sub2 = hub.subscribe( 'menu:open' );
+    var sub1 = hub.sub( 'menu:open' );
+    var sub2 = hub.sub( 'menu:open' );
 
     sinon.spy( sub1, 'receive' );
     sinon.spy( sub2, 'receive' );
 
-    hub.emit( 'menu:open', { foo: 'bar' } );
+    hub.dispatch( 'menu:open', { foo: 'bar' } );
 
     assert( sub1.receive.calledWith( 'menu:open', { foo: 'bar' }));
     assert( sub2.receive.calledWith( 'menu:open', { foo: 'bar' }));
   });
 
   it( 'sends the `message` and `payload` to subcribers of wildcards', function() {
-    var sub = hub.subscribe( 'menu:*' );
+    var sub = hub.sub( 'menu:*' );
 
     sinon.spy( sub, 'receive' );
 
-    hub.emit( 'menu:open', { foo: 'bar' } );
+    hub.dispatch( 'menu:open', { foo: 'bar' } );
 
     assert( sub.receive.calledWith( 'menu:open', { foo: 'bar' }) );
   });
@@ -196,28 +196,28 @@ describe( 'Hub#emit( message, payload )', function() {
   describe( 'when a subscriber subscribes to overlapping patterns', function() {
 
     it( 'only sends a message to a sub once per emission', function() {
-      var sub = hub.subscribe( 'menu:*' );
+      var sub = hub.sub( 'menu:*' );
 
       sinon.spy( sub, 'receive' );
 
-      hub.subscribe( 'menu:open', sub );
+      hub.sub( 'menu:open', sub );
 
       // open matches twice but should generate just one emission
-      hub.emit( 'menu:open', { foo: 'bar' } );
-      hub.emit( 'menu:close', { foo: 'baz' } );
+      hub.dispatch( 'menu:open', { foo: 'bar' } );
+      hub.dispatch( 'menu:close', { foo: 'baz' } );
 
       assert( sub.receive.calledTwice );
     });
   });
 
   it( "doesn't send messages to subscribers that aren't subscribed", function() {
-    var sub1 = hub.subscribe( 'menu:cl' );
-    var sub2 = hub.subscribe( 'menu:close' );
+    var sub1 = hub.sub( 'menu:cl' );
+    var sub2 = hub.sub( 'menu:close' );
 
     sinon.spy( sub1, 'receive' );
     sinon.spy( sub2, 'receive' );
 
-    hub.emit( 'menu:click', { cash: 'money' } );
+    hub.dispatch( 'menu:click', { cash: 'money' } );
 
     assert( !sub1.receive.called );
     assert( !sub2.receive.called );
@@ -226,13 +226,13 @@ describe( 'Hub#emit( message, payload )', function() {
   describe( 'when a subscriber unsubscribes', function() {
 
     it( "stops sending messages to that subscriber", function() {
-      var sub = hub.subscribe( 'menu:open' );
+      var sub = hub.sub( 'menu:open' );
 
       sinon.spy( sub, 'receive' );
 
-      hub.emit( 'menu:open' );
-      hub.unsubscribe( 'menu:open', sub );
-      hub.emit( 'menu:open' );
+      hub.dispatch( 'menu:open' );
+      hub.unsub( 'menu:open', sub );
+      hub.dispatch( 'menu:open' );
 
       assert( sub.receive.calledOnce );
     });
@@ -243,22 +243,22 @@ describe( 'Hub#emit( message, payload )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.emit( '*:signal', 'payload' );
+        hub.dispatch( '*:signal', 'payload' );
       });
 
       assert.throws( function() {
-        hub.emit( 'module:*', 'payload' );
+        hub.dispatch( 'module:*', 'payload' );
       });
 
       assert.throws( function() {
-        hub.emit( '*:*', 'payload' );
+        hub.dispatch( '*:*', 'payload' );
       });
     });
   });
 });
 
 
-describe( 'Hub#unsubscribe( messages, sub )', function() {
+describe( 'Hub#unsub( messages, sub )', function() {
   var hub;
 
   beforeEach( function() {
@@ -266,15 +266,15 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
   });
 
   it( 'stops sending `sub` `messages` of the given type', function() {
-    var sub = hub.subscribe( ['menu:open', 'menu:close', 'modal:open'] );
+    var sub = hub.sub( ['menu:open', 'menu:close', 'modal:open'] );
     
     sinon.spy( sub, 'receive' );
 
-    hub.unsubscribe( 'menu:open', sub );
+    hub.unsub( 'menu:open', sub );
 
-    hub.emit( 'menu:open' );
-    hub.emit( 'modal:open' );
-    hub.emit( 'menu:close' );
+    hub.dispatch( 'menu:open' );
+    hub.dispatch( 'modal:open' );
+    hub.dispatch( 'menu:close' );
 
     assert.equal( sub.receive.callCount, 2 );
   });
@@ -284,22 +284,22 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.unsubscribe( 'module:signal' );
+        hub.unsub( 'module:signal' );
       });
     });
   });
 
   describe( 'when one sub unsubscribes from a message', function() {
     
-    it( 'should not unsubscribe any other subscribers', function() {
-      var sub1 = hub.subscribe( 'menu:open' );
-      var sub2 = hub.subscribe( 'menu:open' );
+    it( 'should not unsub any other subscribers', function() {
+      var sub1 = hub.sub( 'menu:open' );
+      var sub2 = hub.sub( 'menu:open' );
 
       sinon.spy( sub1, 'receive' );
       sinon.spy( sub2, 'receive' );
 
-      hub.unsubscribe( 'menu:open', sub1 );
-      hub.emit( 'menu:open' );
+      hub.unsub( 'menu:open', sub1 );
+      hub.dispatch( 'menu:open' );
 
       assert.equal( sub1.receive.callCount, 0 );
       assert.equal( sub2.receive.callCount, 1 );
@@ -311,11 +311,11 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
     it( 'throws an error', function() {
 
       assert.throws( function() {
-        hub.unsubscribe( undefined );
+        hub.unsub( undefined );
       });
 
       assert.throws( function() {
-        hub.unsubscribe( {} );
+        hub.unsub( {} );
       });
     });
   });
@@ -323,11 +323,11 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
   describe( 'when `message` is not in `<module>:<signal>` format', function() {
     it( 'throws an error', function() {
       assert.throws( function() {
-        hub.unsubscribe( 'just a plain string' );
+        hub.unsub( 'just a plain string' );
       });
 
       assert.throws( function() {
-        hub.unsubscribe( ['message1', 'message2'] );
+        hub.unsub( ['message1', 'message2'] );
       });
     });
   });
@@ -335,14 +335,14 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
   describe( 'when given a message value of `*:*`', function() {
 
     it( 'unsubscribes from all messages', function() {
-      var sub = hub.subscribe( ['menu:open', 'modal:open', 'button:click'] );
+      var sub = hub.sub( ['menu:open', 'modal:open', 'button:click'] );
       
       sinon.spy( sub, 'receive' );
 
-      hub.unsubscribe( '*:*', sub );
-      hub.emit( 'menu:open' );
-      hub.emit( 'modal:open', { type: 'mastery-trees' } );
-      hub.emit( 'button:click' );
+      hub.unsub( '*:*', sub );
+      hub.dispatch( 'menu:open' );
+      hub.dispatch( 'modal:open', { type: 'mastery-trees' } );
+      hub.dispatch( 'button:click' );
 
       assert.equal( sub.receive.callCount, 0 );
     });
@@ -351,13 +351,13 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
   describe( 'when a <signal> of type "*" is given', function() {
 
     it( 'unsubscribes from all messages of a given <module>', function() {
-      var sub = hub.subscribe( ['menu:open', 'menu:close'] );
+      var sub = hub.sub( ['menu:open', 'menu:close'] );
       
       sinon.spy( sub, 'receive' );
 
-      hub.unsubscribe( 'menu:*', sub );
-      hub.emit( 'menu:open' );
-      hub.emit( 'menu:close' );
+      hub.unsub( 'menu:*', sub );
+      hub.dispatch( 'menu:open' );
+      hub.dispatch( 'menu:close' );
 
       assert.equal( sub.receive.callCount, 0 );
     });
@@ -366,13 +366,13 @@ describe( 'Hub#unsubscribe( messages, sub )', function() {
   describe( 'when the <module> part is a wildcard', function() {
 
     it( 'unsubscribes from all messages of type <signal>', function() {
-      var sub = hub.subscribe( ['menu:open', 'modal:open'] );
+      var sub = hub.sub( ['menu:open', 'modal:open'] );
       
       sinon.spy( sub, 'receive' );
 
-      hub.unsubscribe( '*:open', sub );
-      hub.emit( 'modal:open' );
-      hub.emit( 'menu:open' );
+      hub.unsub( '*:open', sub );
+      hub.dispatch( 'modal:open' );
+      hub.dispatch( 'menu:open' );
 
       assert.equal( sub.receive.callCount, 0 );
     });
