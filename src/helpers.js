@@ -3,19 +3,24 @@ module.exports = {
   unique: unique
 };
 
-/** matches_pattern( msg, pattern ) => <Boolean>
-  * Checks if the `message` matches the `signal_pattern`.
+/**
+  * Checks if the `message` matches the `pattern`.
   * 
-  * Wildcards are translated to `\w*` regexp patterns.
+  * @param {string} message - A plain string message
+  * @param {string} pattern - A string containing an optional wildcard characters ('*').
+  * @returns {boolean} 
   */
-function matches_pattern( message, signal_pattern ) {
-  var pattern = signal_pattern.replace( /\*/g, '\\w*' );
+function matches_pattern( message, pattern ) {
+  // Translate the wildcard to match any word characters.
+  var regex = new RegExp( '^' + pattern.replace( /\*/g, '\\w*' ) + '$' );
 
-  return new RegExp( '^' + pattern + '$' ).test( message );
+  return regex.test( message );
 }
 
 /**
   * Returns all the unique elements in an array.
+  * @param {Array} arr - An array with possible duplicate elements.
+  * @returns {Array} A new array with duplicate elements removed.
   */
 function unique( arr ) {
   var result = [];

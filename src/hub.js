@@ -3,9 +3,11 @@ var matches = require( './helpers' ).matches;
 var unique = require( './helpers' ).unique;
 
 /** 
-  * A hub is an event manager that routes events and their
-  * associated payloads to the modules subscribed to those
-  * events.
+  * A hub is an event manager that routes messages and their
+  * associated payloads to the subscribers listening for those
+  * messages.
+  *
+  * @returns A hub object.
   */
 module.exports = function Hub() {
 
@@ -17,6 +19,13 @@ module.exports = function Hub() {
 
   /** 
     * Stops routing messages of type <`module`:`signal`> to the subscriber.
+    * 
+    * @param {String|Array} messages - A message or array of messages that the 
+    *   `subscriber` no longer wishes to listen for.
+    * @param {Function} sub - The function that was passed to the `subscribe()` 
+    *   method.
+    *
+    * @returns {undefined}
     */
   hub.unsubscribe = function( messages, sub ) {
     var matches_pattern = function( key ) {
@@ -90,6 +99,15 @@ module.exports = function Hub() {
 
   /** 
     * Sends the payload to all subscribers of the signal
+    * 
+    * @param {string} message - The message to send to each subscriber. This
+    *   string should contain any wildcard characters. This akin to how an 
+    *   office building might receive a lot mail for different recipients, yet 
+    *   in order for the mail to actually get to the recipient, the sender 
+    *   has to be explicit about who it is for.
+    * @param {any} payload - The data to send to each subscriber.
+    *
+    * @returns {undefined}
     */
   hub.emit = function( message, payload ) {
 
@@ -103,14 +121,7 @@ module.exports = function Hub() {
     var key;
     var i;
 
-    /** Don't allow wildcards in emissions.
-      * The main purpose of this is to force all emitted signals to be
-      * explicit. This is more so that the logic of what's happening is
-      * apparent and the message gets sent to its intended recipients. 
-      *
-      * Much like a building/zip can receive a lot mail for different recipients.
-      * But in order to send mail, you have to be explicit about who it is for.
-      */
+    // Don't allow wildcards in emissions.
     if ( message.indexOf( '*' ) != -1 ) {
       throw Error( 'Wildcard patterns are not allowed in emissions' );
     }
@@ -133,6 +144,11 @@ module.exports = function Hub() {
 
   /** 
     * Registers the `sub` to receive all signals of type `message`.
+    * @param {String|Array} messages - A message or array of messages that the 
+    *   `subscriber` wishes to receive.
+    * @param {Function} sub - The function that will be the recipient of each
+    *   subscribed message and its associated payload.
+    * @returns {undefined}
     */
   hub.subscribe = function( messages, sub ) {
 
