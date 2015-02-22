@@ -2,27 +2,6 @@ var assert = require( 'assert' );
 var sinon  = require( 'sinon' );
 var Hub    = require( '../src/hub' );
 
-describe( 'Hub instance', function() {
-  var hub;
-
-  beforeEach( function() {
-    hub = Hub();
-  });
-
-  it( 'provides a subscribe() method', function() {
-    assert.equal( typeof hub.sub, 'function' );
-  });
-
-  it( 'provides an dispatch() method', function() {
-    assert.equal( typeof hub.dispatch, 'function' );
-  });
-
-  it( 'provides an unsub() method', function() {
-    assert.equal( typeof hub.unsub, 'function' );
-  });
-
-});
-
 describe( 'Hub#sub( message [, subscriber] )', function() {
   var hub;
 
