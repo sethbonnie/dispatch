@@ -15,4 +15,4 @@ module.exports = function unique( arr ) {
   }
 
   return result;
-}
+};

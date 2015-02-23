@@ -9,7 +9,7 @@ var browserify = require( 'browserify' );
 gulp.task( 'jshint', function() {
 
   gulp
-    .src( ['gulpfile.js', './src/*.js', './test/*.js'])
+    .src( ['gulpfile.js', './src/**/*.js', './test/*.js'])
     .pipe( jshint() )
     .pipe( jshint.reporter( 'default' ) );
 
@@ -18,7 +18,7 @@ gulp.task( 'jshint', function() {
 gulp.task( 'test', ['jshint'], function() {
 
   gulp
-    .src( 'test/*.js')
+    .src( 'test/**/*.js')
     .pipe( mocha() );
 
 });
