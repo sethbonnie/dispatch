@@ -1,6 +1,5 @@
-var Subscriber = require( './sub' );
-var matches = require( './helpers' ).matches;
 var unique = require( './utils/unique' );
+var wildcard = require( './utils/wildcard' );
 
 /** 
   * A hub is an event manager that routes messages and their
@@ -17,7 +16,7 @@ module.exports = function Hub() {
   var _subscribers = Object.create( null );
 
 
-  /** 
+  /** Hub#unsub( messages, subscriber )
     * Stops routing messages of type <`module`:`signal`> to the subscriber.
     * 
     * @param {String|Array} messages - A message or array of messages that the 
@@ -28,21 +27,16 @@ module.exports = function Hub() {
     * @returns {undefined}
     */
   hub.unsub = function( messages, subscriber ) {
-    var matches_pattern = function( key ) {
-          return pattern.test( key );
-        };
-    var matching_keys = [];
+    var matchingPatterns = [];
     var patterns = Object.keys( _subscribers );
     var subs;
     var pattern;
+    var message;
     var i;
     var len;
 
-    if ( !subscriber ) {
-      throw new Error( '`subscriber` cannot be `undefined`' );
-    }
-    else if ( typeof subscriber.receive !== 'function' ) {
-      throw new Error( '`subscriber` must implement a `receive()` method' );
+    if ( typeof subscriber !== 'function' ) {
+      throw new Error( 'Missing or invalid argument: `subscriber`' );
     }
 
     if ( typeof messages === 'string' ) {
@@ -59,32 +53,28 @@ module.exports = function Hub() {
       * object.
       */ 
     for ( i = 0, len = messages.length; i < len; i++ ) {
+      message = messages[i];
 
-      /** A module/signal is either multple word characters or 
-        * zero or more word characters followed by a star (*) which 
-        * acts as a wild card. 
-        *
-        * Only one wildcard is allowed in each part.
-        * 
-        * The module and signal are separated by a colon.
-        */
-      if ( ! /^(\w+|\w*\*)\:(\w+|\w*\*)$/.test( messages[i] ) ) {
-        throw new Error( 
-          '`message` arg must be in proper form "<module>:<signal>"' );
+      if ( typeof message !== 'string' ) {
+        throw new Error( 'Each message must be a string' );
       }
 
       // Replace all wildcards with a `[\w*]*` regex.
-      pattern = new RegExp( messages[i].replace( /\*/g, "[\\w*]*" ) );
+      pattern = wildcard.toRegex( message );
 
-      matching_keys = matching_keys.concat( patterns.filter( matches_pattern ) );
+      matchingPatterns = matchingPatterns.concat( 
+        patterns.filter( function( key ) {
+          return pattern.test( key );
+        }) 
+      );
     }
 
     // Filter out duplicate keys
-    matching_keys = unique( matching_keys );
+    matchingPatterns = unique( matchingPatterns );
 
     // Iterate through each matching key and remove the sub if it exists
-    for ( i = 0, len = matching_keys.length; i < len; i++ ) {
-      subs = _subscribers[ matching_keys[i] ];
+    for ( i = 0, len = matchingPatterns.length; i < len; i++ ) {
+      subs = _subscribers[ matchingPatterns[i] ];
 
       if ( subs && subs.indexOf( subscriber ) > -1 ) {
         subs.splice( subs.indexOf( subscriber ), 1 );
@@ -92,12 +82,12 @@ module.exports = function Hub() {
 
       // If no more subscribers are registered under the key, delete it
       if ( subs.length === 0 ) {
-        delete _subscribers[ matching_keys[i] ];
+        delete _subscribers[ matchingPatterns[i] ];
       }
     }
   };
 
-  /** 
+  /** Hub#dispatch( message, payload )
     * Sends the payload to all subscribers of the signal
     * 
     * @param {string} message - The message to send to each subscriber. This
@@ -111,13 +101,10 @@ module.exports = function Hub() {
     */
   hub.dispatch = function( message, payload ) {
 
-    var matching_subs = [];
-    var all_patterns = Object.keys( _subscribers );
+    var matchingSubs = [];
+    var subscriberMessages = Object.keys( _subscribers );
 
-    var matching_patterns = all_patterns.filter( function( pattern ) {
-          return matches( message, pattern );
-        });
-
+    var matchingPatterns;
     var key;
     var i;
 
@@ -126,38 +113,40 @@ module.exports = function Hub() {
       throw Error( 'Wildcard patterns are not allowed in emissions' );
     }
 
+    matchingPatterns = subscriberMessages.filter( function( pattern ) {
+      return wildcard.toRegex( pattern ).test( message );
+    });
+
     // Gather all the matching subscribers into one array
-    for ( i = 0; i < matching_patterns.length; i++ ) {
-      key = matching_patterns[i];
-      matching_subs = matching_subs.concat( _subscribers[key] );
+    for ( i = 0; i < matchingPatterns.length; i++ ) {
+      key = matchingPatterns[i];
+      matchingSubs = matchingSubs.concat( _subscribers[key] );
     }
 
     // Filter out duplicates
-    matching_subs = unique( matching_subs );
+    matchingSubs = unique( matchingSubs );
 
     // Send the message to each subscriber
-    for ( i = 0; i < matching_subs.length; i++ ) {
-      matching_subs[i].receive( message, payload );
+    for ( i = 0; i < matchingSubs.length; i++ ) {
+      matchingSubs[i]( message, payload );
     }
 
   };
 
-  /** 
+  /** Hub#sub( message(s), subscriber )
     * Registers the `sub` to receive all signals of type `message`.
-    * @param {String|Array} messages - A message or array of messages that the 
-    *   `subscriber` wishes to receive.
+    * @param {String|Array} messages - A message pattern or array of messages that the 
+    *   `subscriber` wishes to receive. Each message can have any number of wildcards
+    *   which will match zero or more word-like characters.
     * @param {Function} subscriber - The function that will be the recipient of each
     *   subscribed message and its associated payload.
     * @returns {undefined}
     */
   hub.sub = function( messages, subscriber ) {
-
     var message;
     var subs;
     var len;
     var i;
-
-    subscriber = Subscriber( subscriber );
 
     if ( typeof messages === 'string' ) {
       messages = [ messages ];
@@ -168,22 +157,18 @@ module.exports = function Hub() {
         '`message` must be either a message string or an array of messages' );
     }
 
+    if ( typeof subscriber !== 'function' ) {
+      throw new Error( 'Missing or invalid argument: `subscriber`' );
+    }
+
     // Loop through each message and register the sub to the _subscribers object.
     for ( i = 0, len = messages.length; i < len; i++ ) {
 
       message = messages[i];
 
-      /** A module/signal is either multple word characters or 
-        * zero or more word characters followed by a star (*) which 
-        * acts as a wild card. 
-        *
-        * Only one wildcard is allowed in each part.
-        * 
-        * The module and signal are separated by a colon.
-        */
-      if ( ! /^(\w+|\w*\*)\:(\w+|\w*\*)$/.test( message ) ) {
+      if ( typeof message !== 'string' ) {
         throw new Error( 
-          '`message` arg must be in proper form "<module>:<signal>"' );
+          '`message` must be a string' );
       }
 
       subs = _subscribers[ message ];
