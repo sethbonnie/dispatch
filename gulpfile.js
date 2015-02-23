@@ -26,9 +26,9 @@ gulp.task( 'test', ['jshint'], function() {
 // Bundle and compress it all up with browserify + uglify
 gulp.task( 'build', ['test'],  function() {
 
-  browserify( './index.js' )
+  browserify( './src/hub.js' )
     .bundle()
-    .pipe( source( 'dispatch.js' ) )
+    .pipe( source( 'ground-control.js' ) )
     .pipe( streamify(uglify()) )
     .pipe( gulp.dest( './build' ) );
 
