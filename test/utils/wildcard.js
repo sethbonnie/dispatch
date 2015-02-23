@@ -47,6 +47,17 @@ describe( 'wildcard.toRegex(pattern)', function() {
 
       assert( str.match( wildcard.toRegex( pattern ) ) );
     });
+
+    it( 'matches space characters', function() {
+      var pattern = 'hello*world';
+      var space = 'hello world';
+      var tab = 'hello\tworld';
+      var newline = 'hello\nworld';
+
+      assert( newline.match( wildcard.toRegex( pattern ) ) );
+      assert( space.match( wildcard.toRegex( pattern ) ) );
+      assert( tab.match( wildcard.toRegex( pattern ) ) );
+    });
   });
 
 });
