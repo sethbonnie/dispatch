@@ -1,7 +1,7 @@
 {
-  "name": "ground-control",
+  "name": "pubhub",
   "version": "0.3.1",
-  "description": "An event dispatcher.",
+  "description": "A simple publish-subscribe module.",
   "main": "src/hub.js",
   "directories": {
     "test": "test"
@@ -17,15 +17,14 @@
     "event",
     "emitter",
     "dispatcher",
-    "pub",
-    "sub"
+    "pubsub"
   ],
   "author": "Seth Bonnie",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sethbonnie/ground-control/issues"
+    "url": "https://github.com/sethbonnie/pubhub/issues"
   },
-  "homepage": "https://github.com/sethbonnie/ground-control",
+  "homepage": "https://github.com/sethbonnie/pubhub",
   "devDependencies": {
     "browserify": "^8.1.1",
     "gulp": "^3.8.10",

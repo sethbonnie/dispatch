@@ -5,10 +5,10 @@ var wildcard = require( './utils/wildcard' );
   * A hub is an event manager that routes messages and their
   * associated payloads to the subscribers listening for those
   * messages.
-  *
+  * @constructor
   * @returns A hub object.
   */
-module.exports = function Hub() {
+global.PubHub = module.exports = function Hub() {
 
   var hub = Object.create( null );
 

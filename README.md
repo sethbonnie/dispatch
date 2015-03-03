@@ -1,12 +1,12 @@
-ground-control
-========
+PubHub
+======
 
-An event emitter that takes inspiration from the erlang process model. As opposed to many other event emitters, `dispatch` registers objects rather callbacks. Each subscriber is expected to implement a `__receive(message, payload)` method, which pattern matches on message and does whatever through that.
+A simple pubsub module meant to facilitate a true messaging style of Object-Oriented programming. Through this architecture, objects subscribe for messages that they are interested in rather than manipulating other objects directly. This encourages a shared-nothing style where each object keeps track only of its own state.
 
 
 ## Hub API
-`subscribe( message [, subscriber ] )`
+`sub( message [, subscriber ] )`
 
-`unsubscribe( message, subscriber )`
+`unsub( message, subscriber )`
 
-`emit( message, payload )`
+`dispatch( message, payload )`

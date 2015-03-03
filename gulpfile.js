@@ -28,7 +28,7 @@ gulp.task( 'build', ['test'],  function() {
 
   browserify( './src/hub.js' )
     .bundle()
-    .pipe( source( 'ground-control.js' ) )
+    .pipe( source( 'pubhub.js' ) )
     .pipe( streamify(uglify()) )
     .pipe( gulp.dest( './build' ) );
 
