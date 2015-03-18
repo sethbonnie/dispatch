@@ -64,7 +64,7 @@ describe( 'Hub#sub( message, subscriber )', function() {
 
   describe( 'when just a wildcard is given', function() {
 
-    it( 'subscribes to all messages', function() {
+    it( 'subscribes to all messages', function( done ) {
       var subscriber = function() {};
       var spy = sinon.spy( subscriber );
 
@@ -74,13 +74,16 @@ describe( 'Hub#sub( message, subscriber )', function() {
       hub.dispatch( 'menu:open' );
       hub.dispatch( 'connect' );
 
-      assert( spy.calledThrice );
+      setTimeout( function() {
+        assert( spy.calledThrice );
+        done();
+      }, 0 );
     });
   });
 
   describe( 'when array is given as the `message` argument', function() {
 
-    it( 'subscribes to multiple messages ', function() {
+    it( 'subscribes to multiple messages ', function( done ) {
       var subscriber = function() {};
       var spy = sinon.spy( subscriber );
 
@@ -90,7 +93,10 @@ describe( 'Hub#sub( message, subscriber )', function() {
       hub.dispatch( 'menu:open' );
       hub.dispatch( 'menu:close' );
 
-      assert( spy.calledTwice );
+      setTimeout( function() {
+        assert( spy.calledTwice );
+        done();
+      }, 0 );
     });
   });
 
@@ -103,7 +109,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
     hub = Hub();
   });
 
-  it( 'sends the `message` and `payload` to each subscribed module', function() {
+  it( 'sends the `message` and `payload` to each subscribed module', function( done ) {
     var sub1 = function() {};
     var sub2 = function() {};
     var spy1 = sinon.spy( sub1 );
@@ -114,11 +120,14 @@ describe( 'Hub#dispatch( message, payload )', function() {
 
     hub.dispatch( 'menu:open', { foo: 'bar' } );
 
-    assert( spy1.calledWith( 'menu:open', { foo: 'bar' }));
-    assert( spy2.calledWith( 'menu:open', { foo: 'bar' }));
+    setTimeout( function() {
+      assert( spy1.calledWith( 'menu:open', { foo: 'bar' }));
+      assert( spy2.calledWith( 'menu:open', { foo: 'bar' }));
+      done();
+    }, 0 );
   });
 
-  it( 'sends the `message` and `payload` to subcribers of wildcards', function() {
+  it( 'sends the `message` and `payload` to subcribers of wildcards', function( done ) {
     var subscriber = function() {};
     var spy = sinon.spy( subscriber );
     
@@ -126,12 +135,42 @@ describe( 'Hub#dispatch( message, payload )', function() {
 
     hub.dispatch( 'menu:open', { foo: 'bar' } );
 
-    assert( spy.calledWith( 'menu:open', { foo: 'bar' }) );
+    setTimeout( function() {
+      assert( spy.calledWith( 'menu:open', { foo: 'bar' }) );
+      done();
+    }, 0 );
+    
+  });
+
+  it( 'subscribers to current dispatch should all fire before any other dispatch fires', function( done ) {
+    /**
+      * The first 2 subscribers should run and x should be true before the third subscriber
+      * runs.
+      */
+    var x = false;
+    var sub1 = function() {
+      hub.dispatch( 'run3' );
+    };
+    var sub2 = function() {
+      x = true;
+    };
+    var sub3 = function() {
+      if ( !x ) {
+        assert( false, 'x should be true');
+      }
+      done();
+    };
+
+    hub.sub( 'run1&2', sub1 );
+    hub.sub( 'run1&2', sub2 );
+    hub.sub( 'run3', sub3 );
+
+    hub.dispatch( 'run1&2' );
   });
 
   describe( 'when a subscriber subscribes to overlapping patterns', function() {
 
-    it( 'only sends a message to a sub once per emission', function() {
+    it( 'only sends a message to a sub once per emission', function( done ) {
       var subscriber = function() {};
       var spy = sinon.spy( subscriber );
       
@@ -142,7 +181,10 @@ describe( 'Hub#dispatch( message, payload )', function() {
       hub.dispatch( 'menu:open', { foo: 'bar' } );
       hub.dispatch( 'menu:close', { foo: 'baz' } );
 
-      assert( spy.calledTwice );
+      setTimeout( function() {
+        assert( spy.calledTwice );
+        done();
+      }, 0 );
     });
   });
 
@@ -163,7 +205,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
 
   describe( 'when a subscriber unsubscribes', function() {
 
-    it( "stops sending messages to that subscriber", function() {
+    it( "stops sending messages to that subscriber", function( done ) {
       var subscriber = function() {};
       var spy = sinon.spy( subscriber );
 
@@ -173,7 +215,10 @@ describe( 'Hub#dispatch( message, payload )', function() {
       hub.unsub( 'menu:open', spy );
       hub.dispatch( 'menu:open' );
 
-      assert( spy.calledOnce );
+      setTimeout( function() {
+        assert( spy.calledOnce );
+        done();
+      }, 0 );
     });
   });
 
@@ -208,7 +253,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
     hub = Hub();
   });
 
-  it( 'stops sending `sub` `messages` of the given type', function() {
+  it( 'stops sending `sub` `messages` of the given type', function( done ) {
     var subscriber = function() {};
     var spy = sinon.spy( subscriber );
 
@@ -220,7 +265,10 @@ describe( 'Hub#unsub( messages, sub )', function() {
     hub.dispatch( 'modal:open' );
     hub.dispatch( 'menu:close' );
 
-    assert.equal( spy.callCount, 2 );
+    setTimeout( function() {
+      assert.equal( spy.callCount, 2 );
+      done();
+    }, 0 );
   });
 
   describe( 'when `subscriber` argument is not passed in', function() {
@@ -235,7 +283,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
 
   describe( 'when one subscriber unsubs from a message', function() {
     
-    it( 'should not unsub any other subscribers', function() {
+    it( 'should not unsub any other subscribers', function( done ) {
       var sub1 = function() {};
       var sub2 = function() {};
       var spy1 = sinon.spy( sub1 );
@@ -247,8 +295,11 @@ describe( 'Hub#unsub( messages, sub )', function() {
       hub.unsub( 'menu:open', spy1 );
       hub.dispatch( 'menu:open' );
 
-      assert.equal( spy1.callCount, 0 );
-      assert.equal( spy2.callCount, 1 );
+      setTimeout( function() {
+        assert.equal( spy1.callCount, 0 );
+        assert.equal( spy2.callCount, 1 );
+        done();
+      }, 0 );
     });
   });
 
@@ -269,7 +320,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
 
   describe( 'when given a message value of `*`', function() {
 
-    it( 'unsubscribes from all messages', function() {
+    it( 'unsubscribes from all messages', function( done ) {
       var subscriber = function() {};
       var spy = sinon.spy( subscriber );
 
@@ -278,15 +329,20 @@ describe( 'Hub#unsub( messages, sub )', function() {
 
       hub.dispatch( 'menu:open' );
 
-      assert.equal( spy.callCount, 1 );
-      
-      hub.unsub( '*', spy );
+      setTimeout( function() {
+        assert.equal( spy.callCount, 1 );
+        
+        hub.unsub( '*', spy );
 
-      hub.dispatch( 'menu:open' );
-      hub.dispatch( 'modal:open', { type: 'mastery-trees' } );
-      hub.dispatch( 'button:click' );
+        hub.dispatch( 'menu:open' );
+        hub.dispatch( 'modal:open', { type: 'mastery-trees' } );
+        hub.dispatch( 'button:click' );
 
-      assert.equal( spy.callCount, 1 );
+        setTimeout( function() {
+          assert.equal( spy.callCount, 1 );
+          done();
+        }, 0 );
+      }, 0 );
     });
   });
 });

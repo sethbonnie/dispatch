@@ -35,5 +35,8 @@
     "mocha": "^2.1.0",
     "sinon": "^1.12.2",
     "vinyl-source-stream": "^1.0.0"
+  },
+  "dependencies": {
+    "setimmediate": "^1.0.2"
   }
 }

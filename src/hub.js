@@ -1,6 +1,8 @@
 var unique = require( './utils/unique' );
 var wildcard = require( './utils/wildcard' );
 
+require("setimmediate");
+
 /** 
   * A hub is an event manager that routes messages and their
   * associated payloads to the subscribers listening for those
@@ -128,7 +130,11 @@ global.PubHub = module.exports = function Hub() {
 
     // Send the message to each subscriber
     for ( i = 0; i < matchingSubs.length; i++ ) {
-      matchingSubs[i]( message, payload );
+      (function(fn, msg, pay ) {
+        setImmediate( function() {
+          fn( msg, pay );
+        });
+      })( matchingSubs[i], message, payload )
     }
 
   };
