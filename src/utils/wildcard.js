@@ -1,3 +1,5 @@
+var minimatch = require( 'minimatch' )
+
 module.exports = wildcard = {
   /**
     * Given a pattern containing optional wildcard (*) characters,
@@ -10,6 +12,6 @@ module.exports = wildcard = {
     *   strings that match the whole pattern from beginning to end.
     */
   toRegex: function( pattern ) {
-    return new RegExp( '^' + pattern.replace( /\*/g, '[\\w:\\-\\s]*' ) + '$' );
+    return minimatch.makeRe( pattern )
   }
 };

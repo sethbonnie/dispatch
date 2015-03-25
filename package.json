@@ -37,6 +37,7 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "dependencies": {
+    "minimatch": "^2.0.4",
     "setimmediate": "^1.0.2"
   }
 }
