@@ -1,63 +1,76 @@
 var assert = require( 'assert' );
 var wildcard = require( '../../src/utils/wildcard' );
 
-describe( 'wildcard.toRegex(pattern)', function() {
+/**
+  * Match the behavior specified by UNIX shells as in the 
+  * common features table on:
+  *   http://en.wikipedia.org/wiki/Glob_%28programming%29
+  */
 
-  it( 'throws an error if the `pattern` argument is not a String', function()  {
-    assert.throws( function() {
-      wildcard.toRegex( {} );
-    });
+describe( '?', function() {
+  it( 'matches exactly one unkown characters', function() {
+    var pattern = '?at';
+    var shouldMatch = [ 'Cat', 'Bat', 'bat', 'cat' ];
+    var shouldNotMatch = [ 'at' ];
 
-    assert.throws( function() {
-      wildcard.toRegex( undefined );
-    });
-  });
-
-  it( 'returns a RegExp object', function() {
-    var result = wildcard.toRegex( 'hello world' );
-
-    assert( result instanceof RegExp );
-  });
-
-  it( 'matches when given explicit strings', function() {
-    var str = 'hello world';
-
-    assert( str.match( wildcard.toRegex(str) ) );
-  });
-
-  describe( 'given a wildcard', function() {
-
-    it( 'matches even when the wildcard matches zero characters', function() {
-      var pattern = 'hello* world';
-      var str = 'hello world';
-
+    shouldMatch.forEach( function( str ) {
       assert( str.match( wildcard.toRegex( pattern ) ) );
     });
 
-    it( 'matches when the wildcard matches one character', function() {
-      var pattern = 'hell* world';
-      var str = 'hello world';
-
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+    shouldNotMatch.forEach( function( str ) {
+      assert( !str.match( wildcard.toRegex( pattern ) ) );
     });
+  });
+});
 
-    it( 'matches when the wildcard matches more than one character', function() {
-      var pattern = 'h* world';
-      var str = 'hello world';
+describe( '*', function() {
+  it( 'matches any number of known chars from its pos to the end', function() {
+    var pattern = 'Law*';
+    var shouldMatch = [ 'Law', 'Laws', 'Lawyer' ];
 
+    shouldMatch.forEach( function( str ) {
       assert( str.match( wildcard.toRegex( pattern ) ) );
-    });
-
-    it( 'matches space characters', function() {
-      var pattern = 'hello*world';
-      var space = 'hello world';
-      var tab = 'hello\tworld';
-      var newline = 'hello\nworld';
-
-      assert( newline.match( wildcard.toRegex( pattern ) ) );
-      assert( space.match( wildcard.toRegex( pattern ) ) );
-      assert( tab.match( wildcard.toRegex( pattern ) ) );
     });
   });
 
+  it( 'matches any number of known chars including start or multiple', function() {
+    var pattern = '*Law*';
+    var shouldMatch = [ 'Law', 'GrokLaw', 'Lawyer' ];
+
+    shouldMatch.forEach( function( str ) {
+      assert( str.match( wildcard.toRegex( pattern ) ) );
+    });
+  });
+});
+
+describe( '[<characters>]', function() {
+  it( 'matches a character as part of a group of characters', function() {
+    var pattern = '[CB]at';
+    var shouldMatch = [ 'Bat', 'Cat' ];
+    var shouldNotMatch = [ 'bat', 'cat' ];
+
+    shouldMatch.forEach( function( str ) {
+      assert( str.match( wildcard.toRegex( pattern ) ) );
+    });
+
+    shouldNotMatch.forEach( function( str ) {
+      assert( !str.match( wildcard.toRegex( pattern ) ) );
+    });
+  });
+});
+
+describe( '[!<characters>]', function() {
+  it(  'matches any characters but the ones specified', function() {
+    var pattern = '[!CP]at';
+    var shouldMatch = [ 'Bat', 'bat', 'cat' ];
+    var shouldNotMatch = [ 'Pat', 'Cat' ];
+
+    shouldMatch.forEach( function( str ) {
+      assert( str.match( wildcard.toRegex( pattern ) ) );
+    });
+
+    shouldNotMatch.forEach( function( str ) {
+      assert( !str.match( wildcard.toRegex( pattern ) ) );
+    });
+  });
 });
