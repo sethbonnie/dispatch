@@ -1,5 +1,5 @@
 var assert = require( 'assert' );
-var wildcard = require( '../../src/utils/wildcard' );
+var globToRegex = require( '../../src/utils/glob-to-regex' );
 
 /**
   * Match the behavior specified by UNIX shells as in the 
@@ -14,11 +14,11 @@ describe( '?', function() {
     var shouldNotMatch = [ 'at' ];
 
     shouldMatch.forEach( function( str ) {
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+      assert( str.match( globToRegex( pattern ) ) );
     });
 
     shouldNotMatch.forEach( function( str ) {
-      assert( !str.match( wildcard.toRegex( pattern ) ) );
+      assert( !str.match( globToRegex( pattern ) ) );
     });
   });
 });
@@ -29,7 +29,7 @@ describe( '*', function() {
     var shouldMatch = [ 'Law', 'Laws', 'Lawyer' ];
 
     shouldMatch.forEach( function( str ) {
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+      assert( str.match( globToRegex( pattern ) ) );
     });
   });
 
@@ -38,7 +38,7 @@ describe( '*', function() {
     var shouldMatch = [ 'Law', 'GrokLaw', 'Lawyer' ];
 
     shouldMatch.forEach( function( str ) {
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+      assert( str.match( globToRegex( pattern ) ) );
     });
   });
 });
@@ -50,11 +50,11 @@ describe( '[<characters>]', function() {
     var shouldNotMatch = [ 'bat', 'cat' ];
 
     shouldMatch.forEach( function( str ) {
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+      assert( str.match( globToRegex( pattern ) ) );
     });
 
     shouldNotMatch.forEach( function( str ) {
-      assert( !str.match( wildcard.toRegex( pattern ) ) );
+      assert( !str.match( globToRegex( pattern ) ) );
     });
   });
 });
@@ -66,11 +66,11 @@ describe( '[!<characters>]', function() {
     var shouldNotMatch = [ 'Pat', 'Cat' ];
 
     shouldMatch.forEach( function( str ) {
-      assert( str.match( wildcard.toRegex( pattern ) ) );
+      assert( str.match( globToRegex( pattern ) ) );
     });
 
     shouldNotMatch.forEach( function( str ) {
-      assert( !str.match( wildcard.toRegex( pattern ) ) );
+      assert( !str.match( globToRegex( pattern ) ) );
     });
   });
 });

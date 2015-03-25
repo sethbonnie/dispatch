@@ -1,5 +1,5 @@
 var unique = require( './utils/unique' );
-var wildcard = require( './utils/wildcard' );
+var globToRegex = require( './utils/glob-to-regex' );
 
 require("setimmediate");
 
@@ -62,7 +62,7 @@ global.PubHub = module.exports = function Hub() {
       }
 
       // Replace all wildcards with a `[\w*]*` regex.
-      pattern = wildcard.toRegex( message );
+      pattern = globToRegex( message );
 
       matchingPatterns = matchingPatterns.concat( 
         patterns.filter( function( key ) {
@@ -116,7 +116,7 @@ global.PubHub = module.exports = function Hub() {
     }
 
     matchingPatterns = subscriberMessages.filter( function( pattern ) {
-      return wildcard.toRegex( pattern ).test( message );
+      return globToRegex( pattern ).test( message );
     });
 
     // Gather all the matching subscribers into one array
