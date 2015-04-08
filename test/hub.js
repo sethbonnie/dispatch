@@ -9,6 +9,12 @@ describe( 'Hub#sub( message, subscriber )', function() {
     hub = Hub();
   });
 
+  it( 'returns the hub', function() {
+    var result = hub.sub( 'menu:open', function() {} );
+
+    assert.deepEqual( result, hub );
+  });
+
   describe( 'when `message` is not a string or an array of strings', function() {
 
     it( 'throws an error', function() {
@@ -77,7 +83,7 @@ describe( 'Hub#sub( message, subscriber )', function() {
       setTimeout( function() {
         assert( spy.calledThrice );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -96,10 +102,9 @@ describe( 'Hub#sub( message, subscriber )', function() {
       setTimeout( function() {
         assert( spy.calledTwice );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
-
 });
 
 describe( 'Hub#dispatch( message, payload )', function() {
@@ -107,6 +112,12 @@ describe( 'Hub#dispatch( message, payload )', function() {
 
   beforeEach( function() {
     hub = Hub();
+  });
+
+  it( 'returns the hub', function() {
+    var result = hub.dispatch( 'menu:open', {} );
+
+    assert.deepEqual( result, hub );
   });
 
   it( 'sends the `message` and `payload` to each subscribed module', function( done ) {
@@ -124,7 +135,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
       assert( spy1.calledWith( 'menu:open', { foo: 'bar' }));
       assert( spy2.calledWith( 'menu:open', { foo: 'bar' }));
       done();
-    }, 0 );
+    }, 10 );
   });
 
   it( 'sends the `message` and `payload` to subcribers of wildcards', function( done ) {
@@ -138,7 +149,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
     setTimeout( function() {
       assert( spy.calledWith( 'menu:open', { foo: 'bar' }) );
       done();
-    }, 0 );
+    }, 10 );
     
   });
 
@@ -218,7 +229,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
       setTimeout( function() {
         assert( spy.calledOnce );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -253,6 +264,12 @@ describe( 'Hub#unsub( messages, sub )', function() {
     hub = Hub();
   });
 
+  it( 'returns the hub', function() {
+    var result = hub.unsub( 'menu:open', function() {} );
+
+    assert.deepEqual( result, hub );
+  });
+
   it( 'stops sending `sub` `messages` of the given type', function( done ) {
     var subscriber = function() {};
     var spy = sinon.spy( subscriber );
@@ -268,7 +285,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
     setTimeout( function() {
       assert.equal( spy.callCount, 2 );
       done();
-    }, 0 );
+    }, 10 );
   });
 
   describe( 'when `subscriber` argument is not passed in', function() {
@@ -299,7 +316,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
         assert.equal( spy1.callCount, 0 );
         assert.equal( spy2.callCount, 1 );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -341,8 +358,54 @@ describe( 'Hub#unsub( messages, sub )', function() {
         setTimeout( function() {
           assert.equal( spy.callCount, 1 );
           done();
-        }, 0 );
-      }, 0 );
+        }, 10 );
+      }, 10 );
+    });
+  });
+});
+
+
+describe( 'message caching', function() {
+  var hub;
+
+  beforeEach( function() {
+    hub = Hub();
+  });
+
+  describe( 'when there is no cached payload', function() {
+    it( 'subscriber is not sent a message', function() {
+      var subscriber = function() {};
+      var spy = sinon.spy( subscriber );
+      var payload = { cash: 'money' };
+
+      // Pattern doesn't exist, so nothing is cached
+      hub.dispatch( 'menu:click', payload );
+
+      hub.sub( 'menu:click', spy );
+
+      assert( !spy.called );
+    });
+  });
+
+  describe( 'when there is a cached payload', function() {
+
+    it( 'sends the subscriber the latest cached value upon subbing', function() {
+      var sub1 = function() {};
+      var sub2 = function() {};
+      var spy1 = sinon.spy( sub1 );
+      var spy2 = sinon.spy( sub2 );
+      var message = 'menu:click';
+      var payload = { cash: 'money' };
+
+      hub.sub( message, spy1 );
+
+      // Now the payload is cached
+      hub.dispatch( message, payload );
+      
+      hub.sub( message, spy2 );
+
+      assert( spy2.called );
+      assert( spy2.calledWith(message, payload) );
     });
   });
 });
