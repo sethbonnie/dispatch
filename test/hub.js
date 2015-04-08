@@ -77,7 +77,7 @@ describe( 'Hub#sub( message, subscriber )', function() {
       setTimeout( function() {
         assert( spy.calledThrice );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -96,10 +96,9 @@ describe( 'Hub#sub( message, subscriber )', function() {
       setTimeout( function() {
         assert( spy.calledTwice );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
-
 });
 
 describe( 'Hub#dispatch( message, payload )', function() {
@@ -124,7 +123,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
       assert( spy1.calledWith( 'menu:open', { foo: 'bar' }));
       assert( spy2.calledWith( 'menu:open', { foo: 'bar' }));
       done();
-    }, 0 );
+    }, 10 );
   });
 
   it( 'sends the `message` and `payload` to subcribers of wildcards', function( done ) {
@@ -138,7 +137,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
     setTimeout( function() {
       assert( spy.calledWith( 'menu:open', { foo: 'bar' }) );
       done();
-    }, 0 );
+    }, 10 );
     
   });
 
@@ -218,7 +217,7 @@ describe( 'Hub#dispatch( message, payload )', function() {
       setTimeout( function() {
         assert( spy.calledOnce );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -268,7 +267,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
     setTimeout( function() {
       assert.equal( spy.callCount, 2 );
       done();
-    }, 0 );
+    }, 10 );
   });
 
   describe( 'when `subscriber` argument is not passed in', function() {
@@ -299,7 +298,7 @@ describe( 'Hub#unsub( messages, sub )', function() {
         assert.equal( spy1.callCount, 0 );
         assert.equal( spy2.callCount, 1 );
         done();
-      }, 0 );
+      }, 10 );
     });
   });
 
@@ -341,8 +340,8 @@ describe( 'Hub#unsub( messages, sub )', function() {
         setTimeout( function() {
           assert.equal( spy.callCount, 1 );
           done();
-        }, 0 );
-      }, 0 );
+        }, 10 );
+      }, 10 );
     });
   });
 });
