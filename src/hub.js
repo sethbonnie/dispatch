@@ -52,6 +52,12 @@ global.PubHub = module.exports = function Hub() {
     for ( i = 0; i < matchingPatterns.length; i++ ) {
       key = matchingPatterns[i];
       matchingSubs = matchingSubs.concat( _subscribers[key].subs );
+
+      // Cache the message
+      _subscribers[key].cached = {
+        message: message,
+        payload: payload
+      };
     }
 
     // Filter out duplicates
@@ -82,6 +88,7 @@ global.PubHub = module.exports = function Hub() {
   hub.sub = function( messages, subscriber ) {
     var message;
     var matchingSubs;
+    var cached;
     var len;
     var i;
 
@@ -110,6 +117,7 @@ global.PubHub = module.exports = function Hub() {
 
       if ( _subscribers[message] ) {
         matchingSubs = _subscribers[ message ].subs;
+        cached = _subscribers[message].cached;
       }
 
       /** If there is a mapping from the message to a matching subscribers 
@@ -119,12 +127,17 @@ global.PubHub = module.exports = function Hub() {
       if ( matchingSubs ) {
         if ( matchingSubs.indexOf( subscriber ) < 0 ) {
           matchingSubs.push( subscriber );
-        } 
+        }
       }
       else {
         _subscribers[ message ] = {
           subs: [ subscriber ]
         };
+      }
+
+      // If there is a cached message, consume it
+      if ( cached ) {
+        subscriber( cached.message, cached.payload );
       }
     }
 

@@ -363,3 +363,49 @@ describe( 'Hub#unsub( messages, sub )', function() {
     });
   });
 });
+
+
+describe( 'message caching', function() {
+  var hub;
+
+  beforeEach( function() {
+    hub = Hub();
+  });
+
+  describe( 'when there is no cached payload', function() {
+    it( 'subscriber is not sent a message', function() {
+      var subscriber = function() {};
+      var spy = sinon.spy( subscriber );
+      var payload = { cash: 'money' };
+
+      // Pattern doesn't exist, so nothing is cached
+      hub.dispatch( 'menu:click', payload );
+
+      hub.sub( 'menu:click', spy );
+
+      assert( !spy.called );
+    });
+  });
+
+  describe( 'when there is a cached payload', function() {
+
+    it( 'sends the subscriber the latest cached value upon subbing', function() {
+      var sub1 = function() {};
+      var sub2 = function() {};
+      var spy1 = sinon.spy( sub1 );
+      var spy2 = sinon.spy( sub2 );
+      var message = 'menu:click';
+      var payload = { cash: 'money' };
+
+      hub.sub( message, spy1 );
+
+      // Now the payload is cached
+      hub.dispatch( message, payload );
+      
+      hub.sub( message, spy2 );
+
+      assert( spy2.called );
+      assert( spy2.calledWith(message, payload) );
+    });
+  });
+});
