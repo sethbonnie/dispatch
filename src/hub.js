@@ -66,6 +66,7 @@ global.PubHub = module.exports = function Hub() {
       })( matchingSubs[i], message, payload )
     }
 
+    return hub;
   };
 
 
@@ -123,7 +124,7 @@ global.PubHub = module.exports = function Hub() {
       }
     }
 
-    return subscriber;
+    return hub;
   };
 
 
@@ -196,6 +197,8 @@ global.PubHub = module.exports = function Hub() {
         delete _subscribers[ matchingPatterns[i] ];
       }
     }
+
+    return hub;
   };
 
   return hub;

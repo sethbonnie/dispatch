@@ -9,6 +9,12 @@ describe( 'Hub#sub( message, subscriber )', function() {
     hub = Hub();
   });
 
+  it( 'returns the hub', function() {
+    var result = hub.sub( 'menu:open', function() {} );
+
+    assert.deepEqual( result, hub );
+  });
+
   describe( 'when `message` is not a string or an array of strings', function() {
 
     it( 'throws an error', function() {
@@ -106,6 +112,12 @@ describe( 'Hub#dispatch( message, payload )', function() {
 
   beforeEach( function() {
     hub = Hub();
+  });
+
+  it( 'returns the hub', function() {
+    var result = hub.dispatch( 'menu:open', {} );
+
+    assert.deepEqual( result, hub );
   });
 
   it( 'sends the `message` and `payload` to each subscribed module', function( done ) {
@@ -250,6 +262,12 @@ describe( 'Hub#unsub( messages, sub )', function() {
 
   beforeEach( function() {
     hub = Hub();
+  });
+
+  it( 'returns the hub', function() {
+    var result = hub.unsub( 'menu:open', function() {} );
+
+    assert.deepEqual( result, hub );
   });
 
   it( 'stops sending `sub` `messages` of the given type', function( done ) {
