@@ -51,7 +51,7 @@ global.PubHub = module.exports = function Hub() {
     // Gather all the matching subscribers into one array
     for ( i = 0; i < matchingPatterns.length; i++ ) {
       key = matchingPatterns[i];
-      matchingSubs = matchingSubs.concat( _subscribers[key] );
+      matchingSubs = matchingSubs.concat( _subscribers[key].subs );
     }
 
     // Filter out duplicates
@@ -108,7 +108,9 @@ global.PubHub = module.exports = function Hub() {
           '`message` must be a string' );
       }
 
-      matchingSubs = _subscribers[ message ];
+      if ( _subscribers[message] ) {
+        matchingSubs = _subscribers[ message ].subs;
+      }
 
       /** If there is a mapping from the message to a matching subscribers 
         * list, add our subscriber if it's not already part of the list.
@@ -120,7 +122,9 @@ global.PubHub = module.exports = function Hub() {
         } 
       }
       else {
-        _subscribers[ message ] = [ subscriber ];
+        _subscribers[ message ] = {
+          subs: [ subscriber ]
+        };
       }
     }
 
@@ -186,7 +190,7 @@ global.PubHub = module.exports = function Hub() {
 
     // Iterate through each matching key and remove the sub if it exists
     for ( i = 0, len = matchingPatterns.length; i < len; i++ ) {
-      subs = _subscribers[ matchingPatterns[i] ];
+      subs = _subscribers[ matchingPatterns[i] ].subs;
 
       if ( subs && subs.indexOf( subscriber ) > -1 ) {
         subs.splice( subs.indexOf( subscriber ), 1 );
